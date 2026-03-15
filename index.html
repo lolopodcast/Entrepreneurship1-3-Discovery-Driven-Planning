@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>創業學：機會識別與規劃 | Wharton 互動學習</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: { extend: { fontFamily: { sans: ['Inter','sans-serif'], serif: ['Merriweather','serif'] } } }
+}
+</script>
+<style>
+@keyframes fadeInUp { from{opacity:0;transform:translateY(15px)} to{opacity:1;transform:translateY(0)} }
+.animate-fade-in { animation: fadeInUp 0.5s ease-out forwards; }
+.perspective { perspective: 1000px; }
+.transform-style-3d { transform-style: preserve-3d; }
+.backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.rotate-y-180 { transform: rotateY(180deg); }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.dark ::-webkit-scrollbar-thumb { background: #475569; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ============================================================
+   DICT — 完整雙語字典（zh / en 完全對稱）
+   ============================================================ */
+const dict = {
+zh: {
+title: "創業學：機會識別與規劃",
+subtitle: "Wharton Online · 互動學習系列",
+nav_modules: "單元目錄", nav_prev: "上一單元", nav_next: "下一單元",
+key_terms: "關鍵專有名詞", flip_prompt: "點擊翻轉", audio_read: "語音導覽",
+quiz_title: "模組知識檢定（隨機 4 題）",
+submit: "提交答案", retry: "重新測驗",
+score: "得分", correct: "正確", incorrect: "錯誤", explanation: "解析",
+analytics_title: "學習歷程分析", analytics_desc: "追蹤您的學習進度、互動頻率與測驗表現",
+analytics_form_title: "填寫學習者資訊",
+analytics_group: "組別", analytics_dept: "系級",
+analytics_dept_ph: "例：IBS3", analytics_id: "學號", analytics_id_ph: "例：112212099",
+analytics_name: "姓名", analytics_name_ph: "例：Jimmy Lo",
+analytics_export_csv: "匯出 CSV 歷程記錄", analytics_fill_required: "請填寫完整資訊以解鎖匯出",
+group_options: ["G1","G2","G3","G4","G5","Others"],
+analytics_total_time: "總學習時間", analytics_total_clicks: "總互動點擊",
+analytics_overall_acc: "總體測驗答對率",
+analytics_module: "模組", analytics_time: "停留時間",
+analytics_clicks: "點擊次數", analytics_acc: "答對率",
+analytics_correct_ans_total: "答對 / 已答 / 總題數",
+analytics_no_data: "尚未測驗", analytics_sec: "秒", analytics_times: "次",
+
+// M0
+m0_nav: "0. 課程總覽",
+m0_title: "機會識別與創業規劃",
+m0_intro: "本模組涵蓋 Wharton Online 創業課程第三單元「Opportunity」的核心內容，從焦點市場定義、使用者需求探索、競爭分析、創意發想，到假設盤點與探索驅動規劃（DDP），帶您建立系統化的創業思維框架。",
+m0_why: "為什麼機會識別如此重要？",
+m0_why_desc: "絕大多數新創失敗並非因為技術不足，而是未能正確辨識市場機會、理解使用者真實需求，或未能系統性驗證關鍵假設。本模組將幫助您建立從「直覺」到「驗證」的完整方法論。",
+m0_stats: [
+  { val: "6", label: "學習模組" },
+  { val: "36", label: "專有名詞卡" },
+  { val: "48", label: "測驗題庫" },
+  { val: "6", label: "微個案分析" }
+],
+m0_modules: [
+  { num: "01", title: "焦點市場與市場區隔", desc: "S 曲線、採用者分類、灘頭堡策略" },
+  { num: "02", title: "深度理解使用者需求", desc: "需求辨識四步驟、訪談方法、顧客旅程" },
+  { num: "03", title: "競爭分析與進入策略", desc: "柔道策略、互補性資產、三種進入模式" },
+  { num: "04", title: "創意發想方法論", desc: "混合式流程、個人與團體發想最佳實務" },
+  { num: "05", title: "創業假設盤點與風險排序", desc: "四大假設類別、重要性×不確定性矩陣" },
+  { num: "06", title: "探索驅動規劃（DDP）", desc: "逆向損益表、敏感度分析、里程碑配對" }
+],
+m0_start: "開始學習 →",
+
+// M1 焦點市場
+m1_nav: "1. 焦點市場",
+m1_title: "焦點市場定義與市場區隔",
+m1_p1: "Ethan Mollick 教授指出，新創企業資源有限、時間緊迫，必須精準聚焦目標市場。Gans 與 Stern 的研究提供了一套以市場 S 曲線為基礎的分析框架，協助創業者辨識最適合的灘頭堡客戶（Beachhead Customers），並據此制定進入策略。",
+m1_p2: "「市場 S 曲線不僅告訴你誰會買你的產品，更揭示了不同階段的戰略挑戰——尤其是早期採用者與早期多數之間的『鴻溝』。」",
+m1_p3: "選擇灘頭堡市場時需評估三項準則：可引薦性（該客群能否帶動後續市場？）、學習價值（能否從中獲取關鍵洞察？）、以及策略一致性（是否與整體創業方向吻合？）。S 曲線的位置也暗示了進入時機：在早期階段推出全新產品、在成長期推出改良產品、在成熟期重新區隔市場。",
+m1_case_title: "微個案：Oatly 的灘頭堡市場策略",
+m1_case: "Oatly 於 2016 年進入美國市場時，並未直接挑戰零售通路上的主流乳製品。相反地，他們精心挑選了紐約與布魯克林不到 20 家精品咖啡館作為灘頭堡——包括 Intelligentsia 和 Café Grumpy 等具有意見領袖地位的場所。這些咖啡館的共同特徵不是規模，而是在精品咖啡圈的信譽與影響力。Oatly 的 Barista Edition 產品解決了既有植物奶在咖啡中分層、無法拉花的痛點，迅速獲得咖啡師群體的擁戴。至 2017 年底，Oatly 已滲透約 650 家咖啡館，消費者開始主動詢問零售購買管道，Whole Foods 等零售商也反向尋求合作。這一案例完美詮釋了灘頭堡策略的三項準則：咖啡師群體具有極高的「可引薦性」、精品咖啡場景提供了寶貴的「學習價值」、而反主流的品牌定位確保了「策略一致性」。然而，隨著品類成長吸引了大量競爭者，Oatly 從品類創造者轉變為品類中的挑戰者，提醒我們灘頭堡的成功需要持續轉化為長期競爭優勢。",
+m1_cards: [
+  { title: "市場 S 曲線採用者分類", desc: "創新者（2.5%）→ 早期採用者（13.5%）→ 早期多數（34%）→ 晚期多數（34%）→ 落後者（16%）。每個群體的購買動機截然不同。" },
+  { title: "跨越鴻溝（Crossing the Chasm）", desc: "早期採用者追求革命性優勢；早期多數需要成熟方案。兩者間存在「鴻溝」——許多新創在此階段陣亡，因為無法從「酷炫技術」轉型為「可靠解決方案」。" }
+],
+m1_terms: [
+  { front: "灘頭堡市場 Beachhead Market", back: "新創企業首先聚焦的小型目標市場，取得主導地位後再擴展至鄰近市場。" },
+  { front: "市場 S 曲線 Market S-Curve", back: "描述技術或產品被不同群體採用的時間分佈曲線，從創新者到落後者的擴散過程。" },
+  { front: "跨越鴻溝 Crossing the Chasm", back: "Geoffrey Moore 提出：早期採用者與早期多數之間存在策略斷層，跨越此鴻溝是新創成敗的關鍵。" }
+],
+m1_q: [
+  { q: "市場 S 曲線中，最早採用新技術的群體是？", opts: ["早期採用者","創新者","早期多數","晚期多數"], ans: 1, exp: "創新者（Innovators，約 2.5%）是最早採用者，出於對新事物的好奇心和實驗慾望。" },
+  { q: "「鴻溝」存在於哪兩個群體之間？", opts: ["創新者與早期採用者","早期採用者與早期多數","早期多數與晚期多數","晚期多數與落後者"], ans: 1, exp: "鴻溝位於早期採用者（追求革命性優勢）與早期多數（需要成熟方案）之間。" },
+  { q: "灘頭堡市場選擇的三項準則不包括？", opts: ["可引薦性","學習價值","策略一致性","市場規模最大化"], ans: 3, exp: "三項準則是可引薦性、學習價值和策略一致性。追求最大市場規模並非灘頭堡策略的核心。" },
+  { q: "早期多數客戶最重視的是？", opts: ["擁有最新技術的優越感","經證實的投資報酬率與完整解決方案","價格最低","品牌知名度"], ans: 1, exp: "早期多數需要有確證的 ROI、標準化支援和低轉換成本的「隨插即用」方案。" },
+  { q: "在 S 曲線的成熟期，企業應該採取什麼策略？", opts: ["推出全新產品","改良現有產品","重新區隔市場","退出市場"], ans: 2, exp: "成熟期市場已飽和，需要透過重新區隔市場來開拓新成長空間。" },
+  { q: "Oatly 選擇精品咖啡館作為灘頭堡的主要原因是？", opts: ["門店數量龐大","咖啡師群體具有意見領袖的影響力","租金便宜","距離總部近"], ans: 1, exp: "精品咖啡師在飲品文化中具有意見領袖地位，能有效帶動消費者口碑擴散。" },
+  { q: "創新者購買新產品的主要動機是？", opts: ["價格便宜","獲得他人沒有的新事物","完善的售後服務","朋友推薦"], ans: 1, exp: "創新者追求擁有最新事物的地位感和實驗樂趣，是天生的「嘗鮮者」。" },
+  { q: "下列何者最符合「可引薦性」的含義？", opts: ["該市場利潤率高","攻下此灘頭堡有助於進入後續市場","競爭對手少","技術門檻低"], ans: 1, exp: "可引薦性指該灘頭堡客群能否為後續市場的拓展提供推薦與背書。" }
+],
+
+// M2 使用者需求
+m2_nav: "2. 使用者需求",
+m2_title: "深度理解使用者需求",
+m2_p1: "Kartik Hosanagar 教授強調，即便 Google 和 Facebook 未經正式用戶研究便成功，但對每一個成功案例，背後都有數以萬計因忽略用戶需求而失敗的新創。用戶研究的核心價值在於：避免打造出「你認為重要但用戶不在乎」的功能，並減少達到產品市場契合所需的迭代次數。",
+m2_p2: "「不要問使用者未來會怎麼做——而是觀察他們現在的行為。不要尋求概括性陳述——而是要求具體案例。」",
+m2_p3: "需求辨識遵循四個步驟：蒐集原始資料（訪談 5–20 位利害關係人）、詮釋資料（轉化為需求語句）、按類型組織需求、建立需求的相對重要性。訪談中應聚焦於使用者行為模式（Personas）和顧客旅程中每一步的痛點與情緒，而非直接詢問產品功能偏好。",
+m2_case_title: "微個案：IDEO 與 Cineplanet 的人本設計",
+m2_case: "IDEO 受秘魯最大連鎖電影院 Cineplanet 委託，重新設計觀影體驗。他們沒有直接問顧客「想要什麼功能」，而是深入秘魯的公園、教堂和社區空間，觀察人們如何聚會和社交。設計師在顧客家中進行了長達一到兩小時的深度訪談，理解電影在其日常生活中的角色與情感意義。透過行為觀察（Behavioral Mapping）和沉浸式田野調查，IDEO 發現顧客真正渴望的不是更大的螢幕或更多的爆米花選擇，而是一種社交連結感和情感體驗。此案例的啟示在於：訪談的核心不是直接問「你要什麼」，而是理解使用者在現有體驗中的行為模式、痛點和未被滿足的情感需求——這正是 Hosanagar 教授所強調的「聚焦當下行為而非未來猜測」原則的絕佳體現。",
+m2_cards: [
+  { title: "資料蒐集三種方法", desc: "問卷調查：適合定價、功能排序等具體問題。焦點團體（8–10人）：資訊豐富但昂貴。一對一訪談：便宜、有效且快速——最推薦的早期研究方法。" },
+  { title: "訪談最佳實務", desc: "放下預設的產品概念、避免引導性問題、聚焦當前行為而非未來猜測、要求具體案例而非概括陳述。訪談約 10 位即可覆蓋超過 80% 的需求。" }
+],
+m2_terms: [
+  { front: "使用者人物誌 Persona", back: "結合人口統計資料與行為模式的虛擬用戶代表，幫助團隊以同理心設計產品。" },
+  { front: "顧客旅程 Customer Journey", back: "使用者從認知到購買再到使用的完整體驗路徑，標記每一步的行為、痛點與情緒。" },
+  { front: "產品市場契合 Product-Market Fit", back: "產品真正滿足目標市場的核心需求，使用者願意為之付費且主動推薦的狀態。" }
+],
+m2_q: [
+  { q: "需求辨識的第一步是？", opts: ["建立需求的重要性排序","按類型組織需求","蒐集顧客原始資料","設計產品原型"], ans: 2, exp: "四步驟依序為：蒐集原始資料 → 詮釋資料 → 按類型組織 → 建立相對重要性。" },
+  { q: "訪談中應避免的做法是？", opts: ["詢問具體案例","觀察當前行為","直接詢問使用者未來會怎麼做","放下預設概念"], ans: 2, exp: "人們對未來行為的預測通常不準確，應聚焦觀察當前行為和具體經驗。" },
+  { q: "一般建議的訪談人數是多少？", opts: ["1–3 人","5–20 人","50–100 人","200 人以上"], ans: 1, exp: "早期需求辨識階段，訪談 5–20 位利害關係人即可覆蓋大部分需求。" },
+  { q: "下列哪項不是訪談應涵蓋的利害關係人？", opts: ["最終使用者","購買決策者","安裝人員","競爭對手高管"], ans: 3, exp: "應訪談使用者、購買者、安裝者和顧問等相關利害關係人，但非競爭對手高管。" },
+  { q: "IDEO 在 Cineplanet 案例中採用的關鍵方法是？", opts: ["大規模問卷調查","沉浸式田野觀察與深度訪談","A/B 測試","財務模型分析"], ans: 1, exp: "IDEO 透過沉浸於使用者日常環境的田野觀察和長時間深度訪談，發掘未被表達的需求。" },
+  { q: "用戶研究最能幫助避免的風險是？", opts: ["技術開發失敗","打造使用者不真正在意的功能","資金不足","團隊衝突"], ans: 1, exp: "用戶研究的核心價值是確保產品解決的是真實痛點，避免資源浪費在不重要的功能上。" },
+  { q: "「Persona」的核心要素是？", opts: ["僅包含年齡和收入等人口統計","結合人口統計與行為模式","產品功能清單","財務預測"], ans: 1, exp: "Persona 不僅包含人口統計資料，更重要的是呈現使用者的行為模式和決策邏輯。" },
+  { q: "約訪談幾人後就能覆蓋超過 80% 的用戶需求？", opts: ["3 人","5 人","9–10 人","20 人"], ans: 2, exp: "研究顯示訪談約 9–10 人後，已能識別超過 80% 的用戶需求。" }
+],
+
+// M3 競爭分析
+m3_nav: "3. 競爭分析",
+m3_title: "競爭分析與進入策略",
+m3_p1: "David H. Hsu 教授提出一個核心問題：如果你的創新立刻被所有競爭者取得，誰會賺到錢？為什麼？這個問題迫使創業者深思：純粹的點子不足以致勝，還需要獨特的互補性資產（Complementary Assets）和明智的進入策略。",
+m3_p2: "「柔道策略的精髓不是以力勝力，而是利用對手的體型和慣性反過來制約對手——作為新創，你需要的是巧勁而非蠻力。」",
+m3_p3: "三種核心進入策略包括：價值鏈策略（如 Foxconn 強化既有供應鏈）、破壞式策略（如 Netflix 顛覆 Blockbuster 的配銷模式）、以及藍海策略（如 Airbnb 開創全新市場空間）。成功的進入還需要「柔道策略」——理論化為何在位者不會立即反擊（如品牌外溢風險、蠶食效應），或給予在位者一定的利益交換以化敵為友。",
+m3_case_title: "微個案：Red Bull 的柔道策略",
+m3_case: "Red Bull 進入美國市場時，面對的是飲料巨擘可口可樂。Red Bull 刻意塑造「極限、前衛」的品牌形象，與可口可樂的「家庭、溫馨」定位形成鮮明對比。這不僅是行銷差異化，更是一種精心設計的柔道策略：由於 Red Bull 的品牌形象與可口可樂的核心價值觀相悖，可口可樂若強力進入能量飲料市場，將面臨品牌形象稀釋的風險（負面品牌外溢效應）。這讓 Red Bull 獲得了寶貴的時間窗口來建立市場地位。Red Bull 的互補性資產也是關鍵：他們建立了強大的極限運動贊助網路、獨特的活動行銷能力，以及不依賴傳統零售通路的配銷系統——這些都是競爭者難以快速複製的「緊密持有」資產。此案例說明，成功的進入策略不只是產品差異化，更需要系統性地思考為何在位者「不願意」或「不方便」來競爭。",
+m3_cards: [
+  { title: "互補性資產（Complementary Assets）", desc: "將技術創新轉化為商業回報所需的資產，如專業製造、品牌聲譽、配銷通路、客戶關係等。必須「緊密持有」（非產業通用）才能成為競爭優勢。" },
+  { title: "三種進入策略", desc: "價值鏈策略：合作強化在位者供應鏈（Foxconn）。破壞式策略：以新模式顛覆舊有價值鏈（Netflix）。藍海策略：開創前所未有的市場空間（Airbnb）。" }
+],
+m3_terms: [
+  { front: "柔道策略 Judo Strategy", back: "新創利用在位者的規模和慣性來制約對手，強調以巧勝力、避免正面交鋒。" },
+  { front: "互補性資產 Complementary Assets", back: "商業化創新所需的非技術資源，包括製造能力、品牌、通路等。必須「緊密持有」才構成競爭優勢。" },
+  { front: "破壞式創新 Disruptive Innovation", back: "Christensen 提出：新進者以較低性能但更便利的方案切入低端市場，逐步顛覆在位者。" }
+],
+m3_q: [
+  { q: "「如果創新立刻被競爭者取得」這個問題的目的是？", opts: ["測試技術可行性","迫使思考除了點子之外的競爭優勢來源","評估市場規模","計算利潤率"], ans: 1, exp: "此問題迫使創業者思考互補性資產、進入策略等超越純粹創新點子的競爭優勢。" },
+  { q: "Red Bull 的品牌定位讓可口可樂不願積極競爭的原因是？", opts: ["市場太小","進入會造成負面品牌外溢效應","技術壁壘太高","法律限制"], ans: 1, exp: "Red Bull 的極限前衛形象與可口可樂的家庭溫馨形象相悖，進入能量飲料會稀釋品牌價值。" },
+  { q: "Foxconn 採用的是哪種進入策略？", opts: ["破壞式策略","藍海策略","價值鏈（合作）策略","柔道策略"], ans: 2, exp: "Foxconn 透過強化 Apple、Amazon 既有供應鏈中的製造環節來創造價值，屬於價值鏈策略。" },
+  { q: "互補性資產成為競爭優勢的前提是？", opts: ["資產價值高","資產被緊密持有（非產業通用）","資產種類多","資產數量大"], ans: 1, exp: "唯有「緊密持有」的資產——即非人人可得的獨特資產——才能成為競爭優勢的基礎。" },
+  { q: "Netflix 顛覆 Blockbuster 屬於哪種策略？", opts: ["價值鏈策略","破壞式策略","藍海策略","防禦策略"], ans: 1, exp: "Netflix 以全新的配銷價值鏈（先郵寄 DVD，後串流）取代 Blockbuster 的實體店模式。" },
+  { q: "Airbnb 的成功最符合哪種策略類型？", opts: ["價值鏈策略","破壞式策略","藍海策略","成本領導策略"], ans: 2, exp: "Airbnb 開創了「同伴出租住宿」這個前所未有的市場空間，符合藍海策略的精神。" },
+  { q: "柔道策略的核心原則是？", opts: ["以規模取勝","以技術取勝","以巧勝力，避免正面交鋒","大量投放廣告"], ans: 2, exp: "柔道策略強調利用對手的慣性和規模來制約對手，以技巧而非資源優勢取勝。" },
+  { q: "下列哪項屬於「你能做的事」（組織能力）類型的互補性資產？", opts: ["品牌名稱","配銷通路","客戶資訊擷取能力","專利"], ans: 2, exp: "互補性資產分「你擁有的」（品牌、通路）和「你能做的」（銷售能力、客戶知識捕獲能力）。" }
+],
+
+// M4 創意發想
+m4_nav: "4. 創意發想",
+m4_title: "創意發想方法論",
+m4_p1: "Karl T. Ulrich 教授的實證研究顯示，傳統的團體腦力激盪並非最有效的創意發想方式。相較於團體直接討論，「混合式流程」——先個人獨立發想、再團體分享討論——能產生約 2.5 倍的點子數量，且品質更佳。",
+m4_p2: "「想像十人團隊在荒島上找食物：所有人擠在一起搜索，還是各自朝不同方向散開 30 分鐘後再會合報告——哪種方式能覆蓋更多地形？」",
+m4_p3: "混合式流程的實務操作指引：採用「個人階段＋團體階段」的結構；為個人階段設定數量目標（如 10 個點子）；若無法讓成員事前獨立完成，可在會議開始的前 10 分鐘安排安靜的個人發想時間。關鍵在於確保每位成員不受他人思維限制地探索不同方向，然後再匯集成果。",
+m4_case_title: "微個案：Pixar 的「智囊團」機制",
+m4_case: "Pixar 動畫工作室的「智囊團」（Braintrust）機制是混合式創意流程在組織中的傑出實踐。導演在開發電影時，會定期向智囊團展示未完成的作品。智囊團由資深創意人員組成，但其核心規則是：提供坦誠反饋但不下指令——最終決策權完全歸導演所有。每位成員在會議前會先獨立觀看素材並形成自己的判斷（個人階段），然後在智囊團會議中分享和碰撞觀點（團體階段）。這與 Ulrich 教授的混合式流程異曲同工：先獨立思考避免「團體思維」，再透過結構化討論激發更高品質的洞察。Pixar 共同創辦人 Ed Catmull 曾指出，所有 Pixar 電影在初始版本時都是「糟糕的」，正是這種安全而坦誠的混合式反饋機制，將粗糙的點子打磨成精品。此案例的啟示是：優秀的創意流程不在於消滅個人思考，而在於為個人思考創造空間，再透過結構化的團體互動來提升整體品質。",
+m4_cards: [
+  { title: "混合式流程 vs 傳統腦力激盪", desc: "實驗中，4 人團隊用混合式流程（10 分鐘個人＋20 分鐘團體）產生的點子是純團體流程（30 分鐘）的 2.5 倍，品質也更佳。" },
+  { title: "操作三原則", desc: "1. 採用個人階段＋團體階段結構\n2. 為個人階段設定數量目標（如 10 個點子）\n3. 無法事先完成時，在會議前 10 分鐘安排安靜獨立思考" }
+],
+m4_terms: [
+  { front: "混合式流程 Hybrid Process", back: "先讓個人獨立、平行地探索不同方向，再透過團體討論分享和整合，比純團體腦力激盪效果更佳。" },
+  { front: "團體思維 Groupthink", back: "團體成員為追求共識而壓制異見的傾向，導致創意品質下降和決策盲點。" },
+  { front: "解決方案概念 Solution Concept", back: "針對已辨識之機會所構思的可行方案雛形，通常需產生 5–10 個概念進行評估比較。" }
+],
+m4_q: [
+  { q: "混合式流程比純團體流程多產出約幾倍的點子？", opts: ["1.5 倍","2.5 倍","5 倍","10 倍"], ans: 1, exp: "Ulrich 教授的實證研究顯示，混合式流程產生約 2.5 倍的點子數量且品質更佳。" },
+  { q: "混合式流程中「個人階段」的主要價值是？", opts: ["節省時間","讓每人獨立探索不同方向，不受團體收斂影響","降低成本","避免衝突"], ans: 1, exp: "個人階段的核心價值是讓每位成員不受他人思維限制地覆蓋更多不同方向。" },
+  { q: "Ulrich 教授用什麼比喻說明混合式流程的優勢？", opts: ["烹飪比賽","荒島搜索食物","接力賽跑","拼圖遊戲"], ans: 1, exp: "教授以十人在荒島上搜索食物為喻：散開搜索比擠在一起移動能覆蓋更多地形。" },
+  { q: "為個人階段設定數量目標（如 10 個點子）的原因是？", opts: ["確保品質","促使成員確實執行個人探索","限制過多點子","便於計分"], ans: 1, exp: "明確的數量目標能有效推動成員認真完成個人階段的獨立發想工作。" },
+  { q: "Pixar 智囊團的核心規則是？", opts: ["導演必須採納所有建議","只能提供正面回饋","提供坦誠反饋但不下指令","由多數決定方向"], ans: 2, exp: "智囊團提供坦誠的建設性反饋，但最終決策權完全歸導演所有。" },
+  { q: "若無法讓成員提前完成個人發想，最佳替代做法是？", opts: ["直接開始團體討論","在會議開始時安排安靜的個人思考時間","取消會議","改用問卷調查"], ans: 1, exp: "可在會議前 10 分鐘讓每人安靜獨立思考，確保個人階段仍然發生。" },
+  { q: "傳統腦力激盪的最大問題是？", opts: ["太耗時","所有人趨於收斂在同一條思路上","太昂貴","需要太多人"], ans: 1, exp: "團體中所有人容易收斂在單一對話線索上，限制了探索的廣度和多樣性。" },
+  { q: "下列何者最能體現「混合式流程」的精神？", opts: ["全員投票決定最佳方案","每人先獨立寫 10 個點子，再共同討論","由主管指定方向後團隊執行","只用線上問卷蒐集意見"], ans: 1, exp: "先個人獨立產出，再團體分享討論——這正是混合式流程的核心結構。" }
+],
+
+// M5 假設盤點
+m5_nav: "5. 假設盤點",
+m5_title: "創業假設盤點與風險排序",
+m5_p1: "Ethan Mollick 教授指出，所有創業都建立在假設之上——因為你還沒真正做出這個東西。這些假設往往是「未言明的」，而未能辨識它們可能導致失敗或錯失機會。ChargeItSpot 的案例就是最佳例證。",
+m5_p2: "「創業者面對的不僅是金錢成本——還有時間（競爭者正在逼近）和精力（創辦人不是超人）。規劃的目標是以最低的三重成本學到最多的東西。」",
+m5_p3: "基於 Tom Eisenmann 的框架，假設可歸類為四大類別：顧客價值（需求、競爭、定價、夥伴）、技術與營運（任務規劃、成本驅動、人才、技術）、行銷與銷售（通路、客戶獲取成本、成效衡量）、財務與獲利（預測、投資、資金）。團隊應逐一檢視每項假設，以「重要性」和「不確定性」各 1–5 分進行評分，總分最高者即為最需優先驗證的關鍵假設。",
+m5_case_title: "微個案：ChargeItSpot 的隱藏假設",
+m5_case: "ChargeItSpot 是一家在 Mollick 教授課堂上誕生的新創，核心產品是零售商店中的免費手機充電站。創辦人最初的假設是：充電站的主要價值在於延長顧客在店內的停留時間，從而增加消費金額。這個假設確實成立——但他們錯失了更大的機會。ChargeItSpot 的充電站要求使用者輸入電子郵件地址作為安全機制。事實證明，這個充電站竟是實體店面中蒐集潛在顧客電子郵件最有效的管道——遠超傳統的店內促銷或會員登記。由於創辦人從未將「電子郵件蒐集是否有商業價值」納入假設清單，他們花了相當長的時間才意識到這個巨大的成長機會。這個案例完美詮釋了為何「讓隱藏假設浮出水面」如此關鍵：你不知道的假設，可能隱藏著最大的風險——也可能隱藏著最大的機會。",
+m5_cards: [
+  { title: "四大假設類別", desc: "顧客價值：需求、競爭、定價、夥伴。技術與營運：任務、成本、人才、技術。行銷與銷售：通路、獲客成本、衡量指標。財務與獲利：預測、投資、資金規劃。" },
+  { title: "三重成本", desc: "創業者需同時管控三種稀缺資源：金錢（資金有限）、時間（機會窗口在關閉）、精力（創辦人不是超人）。規劃的目標是以最低的三重成本學到最多。" }
+],
+m5_terms: [
+  { front: "關鍵假設 Key Assumptions", back: "同時具有高重要性和高不確定性的假設，是創業規劃中最需優先驗證的項目。" },
+  { front: "客戶獲取成本 CAC", back: "取得一位新客戶所需的行銷與銷售總支出，是衡量商業模式效率的關鍵指標。" },
+  { front: "假設浮出水面 Surfacing Assumptions", back: "系統性地將未言明的商業假設辨識出來，透過提問和團隊討論使隱藏風險可見。" }
+],
+m5_q: [
+  { q: "Eisenmann 框架中，假設的四大類別不包括？", opts: ["顧客價值","技術與營運","競爭對手財報","財務與獲利"], ans: 2, exp: "四大類別為：顧客價值、技術與營運、行銷與銷售、財務與獲利。不含競爭對手財報。" },
+  { q: "ChargeItSpot 案例中被忽略的關鍵假設是？", opts: ["充電速度","電子郵件蒐集的商業價值","手機相容性","店面租金"], ans: 1, exp: "創辦人未預期到充電站蒐集的電子郵件竟成為實體店最有效的顧客資料蒐集管道。" },
+  { q: "評估假設優先順序的兩個維度是？", opts: ["成本和時間","重要性和不確定性","技術和市場","規模和利潤"], ans: 1, exp: "以重要性（1–5）和不確定性（1–5）評分，總分最高者為最需優先驗證的關鍵假設。" },
+  { q: "創業者面對的「三重成本」不包括？", opts: ["金錢","時間","精力","名譽"], ans: 3, exp: "三重成本為金錢（資金）、時間（機會窗口）、精力（創辦人體力與精神）。" },
+  { q: "「假設浮出水面」的核心方法是？", opts: ["財務建模","系統性地對創業提出關鍵問題","市場調查","技術驗證"], ans: 1, exp: "透過逐一檢視各類別的關鍵問題，將隱藏的假設辨識出來並加以評分排序。" },
+  { q: "「顧客價值」類別中需要回答的問題不包括？", opts: ["你解決什麼需求？","你如何定價？","你的生產設備成本？","你需要哪些合作夥伴？"], ans: 2, exp: "生產設備成本屬於「技術與營運」類別，非「顧客價值」範疇。" },
+  { q: "關鍵假設的特徵是？", opts: ["重要性高且不確定性低","重要性低且不確定性高","重要性和不確定性都高","重要性和不確定性都低"], ans: 2, exp: "關鍵假設同時具備高重要性和高不確定性——它們最值得投入資源優先驗證。" },
+  { q: "創業規劃的核心目標是？", opts: ["撰寫完美的商業計畫書","以最低的三重成本學到最多","獲得最多融資","聘請最優秀的團隊"], ans: 1, exp: "規劃的目標是在金錢、時間和精力的限制下，盡可能多地驗證關鍵假設。" }
+],
+
+// M6 DDP
+m6_nav: "6. 探索驅動規劃",
+m6_title: "探索驅動規劃（DDP）與假設驗證",
+m6_p1: "Ethan Mollick 教授介紹了由 Wharton 的 Ian MacMillan 與 Rita McGrath 開發的「探索驅動規劃」（Discovery Driven Planning, DDP）。這是一種專為不確定環境設計的規劃工具，與傳統商業計畫「從已知推未知」的邏輯相反，DDP 從目標倒推，明確標記每一個假設。",
+m6_p2: "「DDP 的精髓不是預測未來——而是建立一個讓你能系統性地發現自己不知道什麼的框架。」",
+m6_p3: "DDP 包含五個步驟：1. 從目標出發（如年利潤 $138,000）；2. 倒推營運步驟；3. 建構逆向損益表（綠色數字為假設、黑色數字為計算結果）；4. 為每個假設建立基準（數據來源）；5. 將里程碑與假設配對（確保每個假設都有測試時點，且關鍵假設盡早驗證）。Better Desk 案例中，敏感度分析（Tornado Chart）可揭示哪些假設對結果影響最大。",
+m6_case_title: "微個案：Better Desk 的 DDP 實作",
+m6_case: "Better Desk 是課程中的虛構案例：木工夫妻 Jon 與 Joanne 計劃製造高品質站立式辦公桌，目標是年收入比現有薪資（合計 $120,000）高出 15%，即需要 $138,000 的利潤。透過 DDP 流程，他們首先倒推營運步驟（銷售→出貨→製造→訂單→行銷），然後建構逆向損益表，將每個數字標記為「假設」（如原料每張桌子 $120、售價 $450）或「計算結果」。在基準化階段，他們為每個假設標注資料來源（如「原料成本：致電供應商」「員工薪資：參考競爭者 Desk4You」）。然而，檢視模型後發現多項遺漏：沒有租金、沒有稅務、行銷費用以銷售百分比計算（但實際上行銷常需前置投入）、沒有網站成本。敏感度分析進一步顯示，「每筆訂單桌子數」和「每日銷售電話數」等銷售端假設的變動範圍最大，對利潤影響也最劇烈。更關鍵的是，里程碑配對圖揭示這些銷售假設要到業務後期才能被測試——這提示團隊或許應該提前進行預售（如 Kickstarter 募資）來儘早驗證。此案例的核心啟示：DDP 不是一份預測文件，而是一個讓你系統性發現自己「不知道什麼」的學習工具。",
+m6_cards: [
+  { title: "逆向損益表", desc: "從目標利潤出發，倒推所需營收和可容許成本。綠色數字為假設、黑色數字為公式計算結果——清楚區分「已知」與「猜測」。" },
+  { title: "里程碑─假設配對矩陣", desc: "橫軸為業務里程碑（市場研究→試產→焦點團體→模擬銷售→用戶試用→量產），縱軸為關鍵假設。確保每個假設至少對應一個測試里程碑。" }
+],
+m6_terms: [
+  { front: "探索驅動規劃 DDP", back: "MacMillan & McGrath 開發：從目標倒推、明確標記假設、配對里程碑驗證的規劃方法，專為不確定環境設計。" },
+  { front: "逆向損益表 Reverse Income Statement", back: "從目標利潤出發，逐層倒推營收、成本和營運參數的財務模型，每個數字明確標示為假設或計算結果。" },
+  { front: "敏感度分析 Sensitivity Analysis", back: "逐一調整假設數值的高低範圍，觀察對最終結果的影響程度，藉此辨識對模型影響最大的關鍵假設。" }
+],
+m6_q: [
+  { q: "DDP 的第一步是？", opts: ["進行市場研究","建構逆向損益表","從目標出發","列出假設清單"], ans: 2, exp: "DDP 從設定目標開始（如年利潤 $138,000），然後據此倒推所有營運參數。" },
+  { q: "逆向損益表中，綠色數字代表？", opts: ["計算結果","假設（估計值）","實際數據","目標值"], ans: 1, exp: "綠色數字標記為假設——是創業者的估計值，尚待驗證。黑色數字為公式計算結果。" },
+  { q: "Better Desk 案例中，模型遺漏了哪些成本？", opts: ["原料成本","租金、稅務、網站費用","員工薪資","設備折舊"], ans: 1, exp: "檢視模型後發現缺少租金、稅務、網站費用，且行銷費用模型不合理。" },
+  { q: "敏感度分析的目的是？", opts: ["計算精確利潤","辨識哪些假設對結果影響最大","設定銷售目標","比較競爭對手"], ans: 1, exp: "透過調整假設的高低範圍，觀察對最終結果的影響程度，找出最關鍵的假設。" },
+  { q: "里程碑─假設配對的核心原則是？", opts: ["里程碑越多越好","每個假設必須有對應的測試時點","里程碑不超過 5 個","只測試財務假設"], ans: 1, exp: "核心原則是：不允許任何假設進入計畫卻沒有對應的里程碑來驗證它。" },
+  { q: "DDP 與傳統商業計畫的最大差異是？", opts: ["DDP 不需要財務數據","DDP 從目標倒推且明確標記假設","DDP 只適用於科技業","DDP 不考慮競爭"], ans: 1, exp: "傳統計畫從已知推向未知；DDP 從目標倒推，且將每個數字明確標記為已知或假設。" },
+  { q: "Better Desk 案例提示應提前進行預售的原因是？", opts: ["需要現金流","銷售假設的測試里程碑排在太後面","產品尚未完成","競爭者太多"], ans: 1, exp: "里程碑配對圖顯示銷售端關鍵假設要到後期才能驗證，應設法提前測試（如 Kickstarter）。" },
+  { q: "DDP 模型的本質是？", opts: ["精確的財務預測工具","讓你發現自己不知道什麼的學習工具","投資人報告","法律文件"], ans: 1, exp: "DDP 是一個「玩具模型」——不追求精確預測，而是幫助系統性發現未知的學習工具。" }
+],
+
+// M7 Resources
+m7_nav: "7. 外部資源",
+m7_title: "延伸學習資源",
+m7_desc: "精選與本模組各主題相關的高品質外部資源，包含學術文獻、案例分析與實用工具。",
+
+// M8 Lab
+mlab_nav: "8. 互動實驗室",
+mlab_title: "互動實驗室：假設優先序模擬器",
+mlab_desc: "透過互動工具實際演練本模組的核心概念，深化理解。",
+
+date: "Version 2026.03.15",
+copyright: "For Educational Use Only",
+architect_label: "Architect:",
+architect_name: "Prof. Shihmin Lo",
+architect_url: "https://www.ibs.ncnu.edu.tw/index.php/faculty/tenured-professor/299-smlo"
+},
+en: {
+title: "Entrepreneurship: Opportunity & Planning",
+subtitle: "Wharton Online · Interactive Learning Series",
+nav_modules: "Module Menu", nav_prev: "Previous", nav_next: "Next",
+key_terms: "Key Terms", flip_prompt: "Click to flip", audio_read: "Audio Guide",
+quiz_title: "Module Quiz (Random 4 Questions)",
+submit: "Submit", retry: "Retry",
+score: "Score", correct: "Correct", incorrect: "Incorrect", explanation: "Explanation",
+analytics_title: "Learning Analytics", analytics_desc: "Track your study time, interactions, and quiz performance",
+analytics_form_title: "Student Information",
+analytics_group: "Group", analytics_dept: "Department",
+analytics_dept_ph: "e.g., IBS3", analytics_id: "Student ID", analytics_id_ph: "e.g., 112212099",
+analytics_name: "Name", analytics_name_ph: "e.g., Jimmy Lo",
+analytics_export_csv: "Export CSV Records", analytics_fill_required: "Complete all fields to unlock export",
+group_options: ["G1","G2","G3","G4","G5","Others"],
+analytics_total_time: "Total Study Time", analytics_total_clicks: "Total Interactions",
+analytics_overall_acc: "Overall Quiz Accuracy",
+analytics_module: "Module", analytics_time: "Time Spent",
+analytics_clicks: "Clicks", analytics_acc: "Accuracy",
+analytics_correct_ans_total: "Correct / Answered / Total",
+analytics_no_data: "Not taken", analytics_sec: "s", analytics_times: "x",
+
+m0_nav: "0. Overview",
+m0_title: "Opportunity Identification & Venture Planning",
+m0_intro: "This module covers the core content of Wharton Online Entrepreneurship Unit 3 'Opportunity,' from defining focal markets and exploring user needs, to competitive analysis, idea generation, assumption mapping, and Discovery Driven Planning (DDP).",
+m0_why: "Why does opportunity identification matter?",
+m0_why_desc: "Most startups fail not because of insufficient technology, but because they failed to correctly identify market opportunities, understand real user needs, or systematically validate key assumptions. This module builds a complete methodology from 'intuition' to 'validation.'",
+m0_stats: [
+  { val: "6", label: "Learning Modules" },
+  { val: "36", label: "Term Cards" },
+  { val: "48", label: "Quiz Questions" },
+  { val: "6", label: "Micro Cases" }
+],
+m0_modules: [
+  { num: "01", title: "Focal Market & Segmentation", desc: "S-curve, adopter categories, beachhead strategy" },
+  { num: "02", title: "Understanding User Needs", desc: "Four-step needs identification, interviews, customer journey" },
+  { num: "03", title: "Competitive Analysis & Entry", desc: "Judo strategy, complementary assets, three entry models" },
+  { num: "04", title: "Idea Generation Methods", desc: "Hybrid process, individual & group ideation best practices" },
+  { num: "05", title: "Assumption Mapping & Prioritization", desc: "Four assumption categories, importance × uncertainty matrix" },
+  { num: "06", title: "Discovery Driven Planning", desc: "Reverse income statement, sensitivity analysis, milestone matching" }
+],
+m0_start: "Start Learning →",
+
+m1_nav: "1. Focal Market",
+m1_title: "Defining the Focal Market & Segmentation",
+m1_p1: "Prof. Ethan Mollick emphasizes that startups have limited resources and time, requiring precise focus on target markets. The Gans and Stern framework uses the market S-curve to help entrepreneurs identify optimal beachhead customers and formulate entry strategies accordingly.",
+m1_p2: "\"The market S-curve not only tells you who will buy your product—it reveals the strategic challenges at each stage, especially the 'chasm' between early adopters and early majority.\"",
+m1_p3: "Beachhead market selection requires evaluating three criteria: referenceability (can this segment facilitate follow-on segments?), learning value (can you gain key insights?), and coherence (does it fit your overall strategy?). The S-curve position also suggests timing: launch new products early, improve products during growth, and re-segment at maturity.",
+m1_case_title: "Micro Case: Oatly's Beachhead Strategy",
+m1_case: "When Oatly entered the US market in 2016, they didn't directly challenge mainstream dairy on retail shelves. Instead, they carefully selected fewer than 20 specialty coffee shops in Manhattan and Brooklyn as their beachhead—including influential venues like Intelligentsia and Café Grumpy. These venues shared not scale, but credibility among coffee professionals. Oatly's Barista Edition solved the persistent problem of plant milks separating in coffee or failing to produce microfoam for latte art, quickly winning over the barista community. By late 2017, Oatly had penetrated approximately 650 coffee shops, with consumers proactively asking about retail availability and retailers like Whole Foods approaching Oatly. This case perfectly illustrates the three beachhead criteria: baristas provided excellent 'referenceability,' the specialty coffee setting offered rich 'learning value,' and the counter-mainstream positioning ensured 'strategic coherence.' However, as category growth attracted competitors, Oatly shifted from category creator to category challenger—reminding us that beachhead success must be continuously converted into long-term competitive advantage.",
+m1_cards: [
+  { title: "S-Curve Adopter Categories", desc: "Innovators (2.5%) → Early Adopters (13.5%) → Early Majority (34%) → Late Majority (34%) → Laggards (16%). Each group has fundamentally different purchase motivations." },
+  { title: "Crossing the Chasm", desc: "Early adopters seek revolutionary advantage; early majority demands proven solutions. The 'chasm' between them is where many startups fail—unable to transition from 'cool tech' to 'reliable solution.'" }
+],
+m1_terms: [
+  { front: "Beachhead Market", back: "The initial small target market where a startup gains dominant share before expanding to adjacent markets." },
+  { front: "Market S-Curve", back: "Describes the time distribution of technology/product adoption across different groups, from innovators to laggards." },
+  { front: "Crossing the Chasm", back: "Geoffrey Moore's concept: the strategic gap between early adopters and early majority is the make-or-break point for startups." }
+],
+m1_q: [
+  { q: "Which group adopts new technology first on the S-curve?", opts: ["Early Adopters","Innovators","Early Majority","Late Majority"], ans: 1, exp: "Innovators (~2.5%) are the very first, driven by curiosity and desire to experiment with new things." },
+  { q: "The 'chasm' exists between which two groups?", opts: ["Innovators and Early Adopters","Early Adopters and Early Majority","Early Majority and Late Majority","Late Majority and Laggards"], ans: 1, exp: "The chasm lies between Early Adopters (seeking revolution) and Early Majority (needing proven solutions)." },
+  { q: "Which is NOT a beachhead selection criterion?", opts: ["Referenceability","Learning value","Strategic coherence","Maximum market size"], ans: 3, exp: "The three criteria are referenceability, learning value, and coherence. Maximizing market size is not a beachhead priority." },
+  { q: "What do early majority customers value most?", opts: ["Having the latest technology","Demonstrated ROI and complete solutions","Lowest price","Brand fame"], ans: 1, exp: "The early majority needs proven ROI, standardized support, and plug-and-play solutions with low transition costs." },
+  { q: "At the S-curve maturity stage, firms should?", opts: ["Launch entirely new products","Improve existing products","Re-segment the market","Exit the market"], ans: 2, exp: "At maturity, markets are saturated; re-segmentation opens new growth opportunities." },
+  { q: "Why did Oatly choose specialty coffee shops as their beachhead?", opts: ["Large number of stores","Baristas' influence as opinion leaders","Low rent","Close to headquarters"], ans: 1, exp: "Specialty baristas hold influential positions in beverage culture, effectively driving consumer word-of-mouth." },
+  { q: "What primarily motivates innovators to buy new products?", opts: ["Low price","Getting something others don't have yet","Excellent service","Friend recommendations"], ans: 1, exp: "Innovators seek the status of owning new things first and the joy of experimenting—natural 'early triers.'" },
+  { q: "Which best describes 'referenceability'?", opts: ["High profit margins","Winning this beachhead helps enter subsequent markets","Few competitors","Low technical barriers"], ans: 1, exp: "Referenceability means this beachhead segment can provide endorsements and references for future market expansion." }
+],
+
+m2_nav: "2. User Needs",
+m2_title: "Deep Understanding of User Needs",
+m2_p1: "Prof. Kartik Hosanagar emphasizes that even though Google and Facebook succeeded without formal user research, for every success story there are tens of thousands of startups that failed by ignoring user needs. User research helps avoid building features 'you think are important but users don't care about' and reduces iterations needed for product-market fit.",
+m2_p2: "\"Don't ask users what they'll do in the future—observe their current behavior. Don't seek generalizations—ask for specific examples.\"",
+m2_p3: "Needs identification follows four steps: gather raw data (interview 5–20 stakeholders), interpret the data (convert to need statements), organize needs by type, and establish relative importance. Interviews should focus on user behavioral patterns (Personas) and pain points at each step of the customer journey, rather than directly asking about feature preferences.",
+m2_case_title: "Micro Case: IDEO & Cineplanet's Human-Centered Design",
+m2_case: "IDEO was hired by Cineplanet, Peru's largest cinema chain, to reinvent the movie-going experience. Rather than asking customers 'what features do you want,' designers immersed themselves in Peruvian parks, churches, and community spaces to observe how people gathered and socialized. They conducted in-depth interviews lasting one to two hours in customers' homes. Through behavioral mapping and immersive fieldwork, IDEO discovered that customers didn't crave bigger screens or more popcorn options—they yearned for social connection and emotional experiences. The lesson: the core of interviewing is not asking 'what do you want' but understanding behavioral patterns, pain points, and unmet emotional needs—perfectly embodying Hosanagar's principle of 'focus on current behavior, not future speculation.'",
+m2_cards: [
+  { title: "Three Data Collection Methods", desc: "Surveys: good for pricing and feature prioritization. Focus Groups (8–10 people): information-rich but expensive. One-on-one Interviews: cheap, effective, and fast—the recommended method for early research." },
+  { title: "Interview Best Practices", desc: "Forget your product concept, avoid leading questions, focus on current behavior not future speculation, ask for specific examples. ~10 interviews cover 80%+ of user needs." }
+],
+m2_terms: [
+  { front: "Persona", back: "A fictional user representation combining demographics with behavioral patterns, helping teams design with empathy." },
+  { front: "Customer Journey", back: "The complete experience path from awareness to purchase to usage, mapping behaviors, pain points, and emotions at each step." },
+  { front: "Product-Market Fit", back: "The state where a product truly satisfies target market needs—users willingly pay and actively recommend it." }
+],
+m2_q: [
+  { q: "What is the first step in needs identification?", opts: ["Establish importance ranking","Organize needs by type","Gather raw customer data","Design a prototype"], ans: 2, exp: "The four steps are: gather raw data → interpret data → organize by type → establish relative importance." },
+  { q: "What should be avoided during interviews?", opts: ["Asking for specific examples","Observing current behavior","Directly asking what users will do in the future","Letting go of preconceptions"], ans: 2, exp: "People poorly predict future behavior. Focus on observing current behavior and asking about specific past experiences." },
+  { q: "The recommended number of interviews is?", opts: ["1–3","5–20","50–100","200+"], ans: 1, exp: "For early needs identification, interviewing 5–20 stakeholders provides sufficient qualitative coverage." },
+  { q: "Which is NOT a stakeholder to interview?", opts: ["End user","Purchase decision maker","Installation staff","Competitor executives"], ans: 3, exp: "Interview users, buyers, installers, and advisors—not competitor executives." },
+  { q: "IDEO's key method in the Cineplanet case was?", opts: ["Large-scale surveys","Immersive field observation and in-depth interviews","A/B testing","Financial modeling"], ans: 1, exp: "IDEO used immersive fieldwork in users' natural environments and extended home interviews to uncover unarticulated needs." },
+  { q: "User research primarily helps avoid?", opts: ["Technical failures","Building features users don't actually care about","Running out of money","Team conflicts"], ans: 1, exp: "User research ensures the product solves real pain points, preventing wasted resources on irrelevant features." },
+  { q: "The core element of a 'Persona' is?", opts: ["Demographics only","Demographics combined with behavioral patterns","Product feature list","Financial projections"], ans: 1, exp: "Personas combine demographic data with behavioral patterns and decision-making logic, going beyond basic demographics." },
+  { q: "After how many interviews are 80%+ of user needs typically covered?", opts: ["3","5","9–10","20"], ans: 2, exp: "Research shows that after about 9–10 interviews, over 80% of user needs have been identified." }
+],
+
+m3_nav: "3. Competitive Analysis",
+m3_title: "Competitive Analysis & Entry Strategies",
+m3_p1: "Prof. David H. Hsu poses a core question: if your innovation were instantly available to all competitors, who would make money? Why? This forces entrepreneurs to think beyond ideas—you need unique complementary assets and a smart entry strategy.",
+m3_p2: "\"The essence of judo strategy is not overpowering through strength, but using the opponent's size and inertia against them—as a startup, you need leverage, not brute force.\"",
+m3_p3: "Three core entry strategies: value chain (e.g., Foxconn reinforcing existing supply chains), disruptive (e.g., Netflix upending Blockbuster's distribution model), and blue ocean (e.g., Airbnb creating entirely new market space). Successful entry also requires 'judo strategy'—theorizing why incumbents won't immediately retaliate (e.g., brand spillover risks, cannibalization), or giving incumbents a stake to turn enemies into allies.",
+m3_case_title: "Micro Case: Red Bull's Judo Strategy",
+m3_case: "When Red Bull entered the US market, it faced beverage giant Coca-Cola. Red Bull deliberately cultivated an 'extreme, edgy' brand image, sharply contrasting Coca-Cola's 'family, wholesome' positioning. This wasn't merely marketing differentiation—it was a carefully designed judo strategy: since Red Bull's brand values conflicted with Coca-Cola's core identity, aggressive entry into energy drinks would risk diluting Coca-Cola's brand (negative brand spillover). This bought Red Bull valuable time to establish market position. Red Bull's complementary assets were also key: they built an extensive extreme sports sponsorship network, unique event marketing capabilities, and a distribution system independent of traditional retail—all 'tightly held' assets difficult for competitors to quickly replicate. This case shows that successful entry strategy isn't just product differentiation—it requires systematically thinking about why incumbents 'won't want to' or 'find it inconvenient to' compete.",
+m3_cards: [
+  { title: "Complementary Assets", desc: "Assets needed to translate innovation into commercial returns: specialized manufacturing, brand reputation, distribution channels, customer relationships. Must be 'tightly held' (not industry-generic) to be a source of advantage." },
+  { title: "Three Entry Strategies", desc: "Value chain: cooperate within incumbent supply chains (Foxconn). Disruptive: upend existing value chains with new models (Netflix). Blue ocean: create entirely new market spaces (Airbnb)." }
+],
+m3_terms: [
+  { front: "Judo Strategy", back: "Startups use incumbents' scale and inertia against them, emphasizing leverage over force and avoiding head-to-head competition." },
+  { front: "Complementary Assets", back: "Non-technical resources needed for commercialization: manufacturing, brand, distribution, etc. Must be 'tightly held' to constitute competitive advantage." },
+  { front: "Disruptive Innovation", back: "Christensen's theory: entrants offer lower-performance but more accessible solutions in underserved segments, gradually disrupting incumbents." }
+],
+m3_q: [
+  { q: "The purpose of asking 'what if competitors instantly got your innovation' is?", opts: ["Test technical feasibility","Force thinking about competitive advantages beyond the idea itself","Estimate market size","Calculate profit margins"], ans: 1, exp: "This question forces thinking about complementary assets, entry strategy, and other advantages beyond the pure idea." },
+  { q: "Why did Red Bull's positioning discourage Coca-Cola from competing?", opts: ["Market too small","Entry would cause negative brand spillover","Technical barriers too high","Legal restrictions"], ans: 1, exp: "Red Bull's extreme image conflicts with Coca-Cola's family values—entering energy drinks would dilute brand equity." },
+  { q: "Foxconn uses which entry strategy?", opts: ["Disruptive","Blue ocean","Value chain (cooperative)","Judo strategy"], ans: 2, exp: "Foxconn creates value by strengthening the manufacturing segment within Apple's and Amazon's supply chains—value chain strategy." },
+  { q: "The prerequisite for complementary assets to be a competitive advantage is?", opts: ["High asset value","Assets are tightly held (not generically available)","Many asset types","Large asset quantity"], ans: 1, exp: "Only 'tightly held' assets—unique and not freely available to all—can be a basis for competitive advantage." },
+  { q: "Netflix disrupting Blockbuster is which strategy?", opts: ["Value chain","Disruptive","Blue ocean","Defensive"], ans: 1, exp: "Netflix replaced Blockbuster's physical store model with an entirely new distribution chain (first mail, then streaming)." },
+  { q: "Airbnb's success best fits which strategy type?", opts: ["Value chain","Disruptive","Blue ocean","Cost leadership"], ans: 2, exp: "Airbnb created the unprecedented 'peer-to-peer accommodation' market space, embodying blue ocean strategy." },
+  { q: "The core principle of judo strategy is?", opts: ["Win through scale","Win through technology","Win through leverage, avoid direct confrontation","Heavy advertising"], ans: 2, exp: "Judo strategy emphasizes using opponents' inertia and scale against them—winning through skill, not resources." },
+  { q: "Which is a 'capabilities' type complementary asset?", opts: ["Brand name","Distribution channels","Customer information capture ability","Patents"], ans: 2, exp: "Assets split into 'things you own' (brand, channels) and 'things you can do' (sales expertise, customer knowledge capture)." }
+],
+
+m4_nav: "4. Idea Generation",
+m4_title: "Idea Generation Methods",
+m4_p1: "Prof. Karl T. Ulrich's empirical research shows traditional group brainstorming is not the most effective ideation method. Compared to group-only discussion, the 'hybrid process'—individual ideation first, then group sharing—generates approximately 2.5x more ideas of better quality.",
+m4_p2: "\"Imagine ten people searching a deserted island for food: everyone clustered together in a rugby scrum, or each heading off in a different direction for 30 minutes before reconvening—which approach covers more territory?\"",
+m4_p3: "Practical guidelines for the hybrid process: use an 'individual phase + group phase' structure; set a numerical target for the individual phase (e.g., 10 ideas); if pre-work isn't feasible, have everyone work silently for the first 10 minutes of the meeting. The key is ensuring each member explores different directions unconstrained by others' thinking, then pooling discoveries.",
+m4_case_title: "Micro Case: Pixar's Braintrust Mechanism",
+m4_case: "Pixar Animation Studios' 'Braintrust' mechanism is an outstanding organizational implementation of the hybrid creative process. During film development, directors regularly present unfinished work to the Braintrust—a group of senior creatives. The core rule: provide candid feedback but never give directives—the director retains full decision-making authority. Each member independently views material and forms their own judgment before the meeting (individual phase), then shares and challenges perspectives in the Braintrust session (group phase). This mirrors Ulrich's hybrid process: independent thinking first to avoid groupthink, then structured discussion to elevate quality. Pixar co-founder Ed Catmull noted that all Pixar films are 'terrible' in their initial versions—it's this safe, candid hybrid feedback mechanism that polishes rough ideas into masterpieces. The lesson: great creative processes don't eliminate individual thinking—they create space for it, then use structured group interaction to elevate overall quality.",
+m4_cards: [
+  { title: "Hybrid vs Traditional Brainstorming", desc: "In experiments, 4-person teams using the hybrid process (10 min individual + 20 min group) generated 2.5x more ideas than pure group process (30 min)—with better quality." },
+  { title: "Three Operating Principles", desc: "1. Use individual phase + group phase structure\n2. Set numerical targets for individual phase (e.g., 10 ideas)\n3. If pre-work isn't done, dedicate first 10 minutes of meeting to silent individual thinking" }
+],
+m4_terms: [
+  { front: "Hybrid Process", back: "Having individuals independently explore different directions first, then sharing and integrating through group discussion—more effective than pure group brainstorming." },
+  { front: "Groupthink", back: "The tendency for group members to suppress dissent in pursuit of consensus, leading to lower creativity and decision-making blind spots." },
+  { front: "Solution Concept", back: "A viable solution prototype conceived for an identified opportunity; typically 5–10 concepts are generated for comparative evaluation." }
+],
+m4_q: [
+  { q: "How many more ideas does the hybrid process generate vs. group-only?", opts: ["1.5x","2.5x","5x","10x"], ans: 1, exp: "Ulrich's empirical research shows the hybrid process generates approximately 2.5x more ideas with better quality." },
+  { q: "The primary value of the 'individual phase' is?", opts: ["Save time","Allow each person to explore different directions unconstrained","Reduce costs","Avoid conflict"], ans: 1, exp: "The individual phase ensures each member explores different territory without being constrained by group convergence." },
+  { q: "What analogy does Ulrich use to explain the hybrid approach?", opts: ["Cooking competition","Searching a deserted island for food","Relay race","Jigsaw puzzle"], ans: 1, exp: "The professor uses ten people searching an island: spreading out covers more ground than moving together in a scrum." },
+  { q: "Why set a numerical target (e.g., 10 ideas) for the individual phase?", opts: ["Ensure quality","Motivate members to actually do the individual exploration","Limit too many ideas","Easy scoring"], ans: 1, exp: "An explicit numerical target effectively pushes members to take the individual ideation phase seriously." },
+  { q: "The core rule of Pixar's Braintrust is?", opts: ["Directors must accept all suggestions","Only positive feedback allowed","Provide candid feedback but no directives","Majority vote decides direction"], ans: 2, exp: "The Braintrust provides candid constructive feedback, but ultimate decision-making authority rests entirely with the director." },
+  { q: "Best alternative if pre-meeting individual work isn't feasible?", opts: ["Jump straight into group discussion","Allocate quiet individual thinking time at start of meeting","Cancel the meeting","Use surveys instead"], ans: 1, exp: "Dedicate the first 10 minutes to silent individual thinking, ensuring the individual phase still occurs." },
+  { q: "The biggest problem with traditional brainstorming is?", opts: ["Too time-consuming","Everyone converges on the same thread of thinking","Too expensive","Requires too many people"], ans: 1, exp: "In groups, everyone tends to converge on a single conversation thread, limiting the breadth and diversity of exploration." },
+  { q: "Which best embodies the 'hybrid process' spirit?", opts: ["Full team vote on best idea","Each person writes 10 ideas independently, then discusses together","Manager assigns direction, team executes","Online surveys only"], ans: 1, exp: "Independent individual generation followed by group sharing and discussion—this is the hybrid process core structure." }
+],
+
+m5_nav: "5. Assumptions",
+m5_title: "Startup Assumption Mapping & Prioritization",
+m5_p1: "Prof. Ethan Mollick points out that every startup is built on assumptions—because you haven't built the thing yet. These assumptions are often 'unspoken,' and failing to identify them can lead to failure or missed opportunities. The ChargeItSpot case is a perfect illustration.",
+m5_p2: "\"Entrepreneurs face not just monetary costs—but also time (competitors are closing in) and effort (founders aren't superhuman). The goal of planning is to learn as much as possible while minimizing these three costs.\"",
+m5_p3: "Based on Tom Eisenmann's framework, assumptions fall into four categories: Customer Value (needs, competition, pricing, partners), Technology & Operations (tasks, cost drivers, talent, technology), Marketing & Sales (channels, CAC, measurement), and Financials & Profit (projections, investment, funding). Teams should review each assumption, rating 'importance' and 'uncertainty' 1–5 each; the highest total scores are the key assumptions to validate first.",
+m5_case_title: "Micro Case: ChargeItSpot's Hidden Assumption",
+m5_case: "ChargeItSpot, a startup born in Mollick's class, built free phone charging stations in retail stores. Founders initially assumed the primary value was increasing customer dwell time and thus spending. This assumption proved valid—but they missed an even bigger opportunity. The charging station required users to enter their email address as a security measure. It turned out this was the most effective in-store channel for collecting potential customer emails—far surpassing traditional promotions or membership sign-ups. Because founders never listed 'email collection has business value' in their assumption set, it took considerable time to recognize this massive growth opportunity. This case perfectly illustrates why 'surfacing hidden assumptions' is critical: what you don't know you're assuming may hide the biggest risks—and the biggest opportunities.",
+m5_cards: [
+  { title: "Four Assumption Categories", desc: "Customer Value: needs, competition, pricing, partners. Tech & Ops: tasks, costs, talent, technology. Marketing & Sales: channels, CAC, metrics. Financials: projections, investment, funding." },
+  { title: "Three Entrepreneurial Costs", desc: "Entrepreneurs manage three scarce resources simultaneously: money (limited capital), time (opportunity windows closing), and effort (founders aren't superhuman). Planning aims to maximize learning at minimum triple cost." }
+],
+m5_terms: [
+  { front: "Key Assumptions", back: "Assumptions with both high importance and high uncertainty—the items most worth prioritizing for validation in entrepreneurial planning." },
+  { front: "Customer Acquisition Cost (CAC)", back: "The total marketing and sales expenditure needed to acquire one new customer—a key metric for measuring business model efficiency." },
+  { front: "Surfacing Assumptions", back: "Systematically identifying unspoken business assumptions through questioning and team discussion, making hidden risks visible." }
+],
+m5_q: [
+  { q: "Eisenmann's four assumption categories do NOT include?", opts: ["Customer Value","Tech & Operations","Competitor financial statements","Financials & Profit"], ans: 2, exp: "The four categories are: Customer Value, Tech & Operations, Marketing & Sales, Financials & Profit. Not competitor financials." },
+  { q: "In the ChargeItSpot case, the overlooked key assumption was?", opts: ["Charging speed","Email collection's business value","Phone compatibility","Store rent"], ans: 1, exp: "Founders didn't anticipate that the charging station's email collection would become the most effective in-store customer data channel." },
+  { q: "The two dimensions for prioritizing assumptions are?", opts: ["Cost and time","Importance and uncertainty","Technology and market","Scale and profit"], ans: 1, exp: "Rate importance (1–5) and uncertainty (1–5); highest total scores are the key assumptions to validate first." },
+  { q: "The 'three entrepreneurial costs' do NOT include?", opts: ["Money","Time","Effort","Reputation"], ans: 3, exp: "The three costs are money (capital), time (opportunity windows), and effort (founder's physical and mental energy)." },
+  { q: "The core method for 'surfacing assumptions' is?", opts: ["Financial modeling","Systematically asking key questions about the venture","Market research","Technical validation"], ans: 1, exp: "Reviewing key questions across all categories surfaces hidden assumptions for scoring and prioritization." },
+  { q: "Which question does NOT belong in the 'Customer Value' category?", opts: ["What needs do you solve?","How do you price?","What is your equipment cost?","What partners do you need?"], ans: 2, exp: "Equipment cost belongs to 'Tech & Operations,' not 'Customer Value.'" },
+  { q: "Key assumptions are characterized by?", opts: ["High importance, low uncertainty","Low importance, high uncertainty","Both high importance and high uncertainty","Both low importance and low uncertainty"], ans: 2, exp: "Key assumptions combine high importance and high uncertainty—most worth investing resources to validate first." },
+  { q: "The core goal of entrepreneurial planning is?", opts: ["Write a perfect business plan","Learn as much as possible at minimum triple cost","Secure maximum funding","Hire the best team"], ans: 1, exp: "The goal is to validate as many key assumptions as possible within the constraints of money, time, and effort." }
+],
+
+m6_nav: "6. DDP",
+m6_title: "Discovery Driven Planning (DDP) & Validation",
+m6_p1: "Prof. Ethan Mollick introduces 'Discovery Driven Planning' (DDP), developed by Wharton's Ian MacMillan and Rita McGrath. This planning tool, designed for uncertainty, reverses traditional logic—instead of projecting from known facts, DDP works backward from goals, explicitly marking every assumption.",
+m6_p2: "\"The essence of DDP is not predicting the future—it's building a framework that systematically reveals what you don't know.\"",
+m6_p3: "DDP has five steps: 1. Start from the goal (e.g., $138,000 annual profit); 2. Map operational steps backward; 3. Build a reverse income statement (green = assumptions, black = calculations); 4. Benchmark each assumption (data sources); 5. Match milestones to assumptions (ensure every assumption has a test point, with key assumptions tested earliest). In the Better Desk case, sensitivity analysis (Tornado Chart) reveals which assumptions most impact outcomes.",
+m6_case_title: "Micro Case: Better Desk DDP Implementation",
+m6_case: "Better Desk is the course's fictional case: carpenter couple Jon and Joanne plan to manufacture premium standing desks, targeting 15% above their combined salary ($120,000), requiring $138,000 in profit. Through DDP, they first mapped operational steps backward (sales → shipping → manufacturing → orders → marketing), then built a reverse income statement marking each number as 'assumption' (e.g., materials $120/desk, sale price $450) or 'calculated result.' During benchmarking, they annotated each assumption's data source (e.g., 'material cost: supplier phone calls,' 'employee salary: competitor Desk4You'). However, review revealed missing items: no rent, no taxes, marketing costs as a percentage of sales (but marketing often requires upfront investment), no website costs. Sensitivity analysis showed that sales-side assumptions—'desks per order' and 'sales calls per day'—had the widest ranges and greatest profit impact. Critically, the milestone-matching chart revealed these sales assumptions wouldn't be tested until late in the business—suggesting the team should consider pre-selling (e.g., Kickstarter) to validate earlier. The core lesson: DDP is not a predictive document—it's a learning tool that systematically reveals what you don't know.",
+m6_cards: [
+  { title: "Reverse Income Statement", desc: "Starting from target profit, work backward to required revenue and allowable costs. Green numbers = assumptions; black = calculated results—clearly distinguishing 'known' from 'guessed.'" },
+  { title: "Milestone-Assumption Matrix", desc: "Horizontal: business milestones (market study → trial production → focus groups → sales simulation → user trials → full launch). Vertical: key assumptions. Ensures every assumption maps to at least one testing milestone." }
+],
+m6_terms: [
+  { front: "Discovery Driven Planning (DDP)", back: "MacMillan & McGrath's method: work backward from goals, explicitly mark assumptions, match milestones for validation—designed for uncertain environments." },
+  { front: "Reverse Income Statement", back: "A financial model that starts from target profit and works backward through revenue, costs, and operational parameters, marking each number as assumption or calculation." },
+  { front: "Sensitivity Analysis", back: "Adjusting each assumption's high and low range to observe impact on outcomes, identifying which assumptions most affect the model." }
+],
+m6_q: [
+  { q: "The first step of DDP is?", opts: ["Market research","Build reverse income statement","Start from the goal","List assumptions"], ans: 2, exp: "DDP begins with setting a goal (e.g., $138,000 annual profit), then works backward from there." },
+  { q: "In the reverse income statement, green numbers represent?", opts: ["Calculated results","Assumptions (estimates)","Actual data","Target values"], ans: 1, exp: "Green numbers mark assumptions—the entrepreneur's estimates yet to be validated. Black numbers are formula calculations." },
+  { q: "In Better Desk, which costs were missing from the model?", opts: ["Material costs","Rent, taxes, website costs","Employee salaries","Equipment depreciation"], ans: 1, exp: "Review revealed missing rent, taxes, website costs, and an unreasonable marketing cost model." },
+  { q: "The purpose of sensitivity analysis is?", opts: ["Calculate precise profit","Identify which assumptions most impact results","Set sales targets","Compare competitors"], ans: 1, exp: "By adjusting assumption ranges, you observe which ones most affect final outcomes—revealing the most critical assumptions." },
+  { q: "The core principle of milestone-assumption matching is?", opts: ["More milestones are better","Every assumption must have a corresponding test point","No more than 5 milestones","Only test financial assumptions"], ans: 1, exp: "The core principle: never allow an assumption into the plan without a milestone to test it." },
+  { q: "The biggest difference between DDP and traditional business plans?", opts: ["DDP doesn't need financial data","DDP works backward from goals and explicitly marks assumptions","DDP only works for tech","DDP ignores competition"], ans: 1, exp: "Traditional plans project from known facts; DDP works backward from goals, explicitly marking each number as known or assumed." },
+  { q: "Better Desk suggests pre-selling because?", opts: ["Need cash flow","Sales assumption milestones are scheduled too late","Product isn't ready","Too many competitors"], ans: 1, exp: "The milestone chart shows key sales assumptions aren't tested until late—pre-selling (e.g., Kickstarter) validates them earlier." },
+  { q: "The essential nature of a DDP model is?", opts: ["A precise financial forecasting tool","A learning tool revealing what you don't know","An investor report","A legal document"], ans: 1, exp: "DDP is a 'toy model'—not aimed at precise prediction, but at systematically revealing unknowns as a learning tool." }
+],
+
+m7_nav: "7. Resources",
+m7_title: "Extended Learning Resources",
+m7_desc: "Curated high-quality external resources related to each module topic, including academic literature, case analyses, and practical tools.",
+
+mlab_nav: "8. Interactive Lab",
+mlab_title: "Interactive Lab: Assumption Priority Simulator",
+mlab_desc: "Practice core module concepts through interactive tools to deepen understanding.",
+
+date: "Version 2026.03.15",
+copyright: "For Educational Use Only",
+architect_label: "Architect:",
+architect_name: "Prof. Shihmin Lo",
+architect_url: "https://www.ibs.ncnu.edu.tw/index.php/faculty/tenured-professor/299-smlo"
+}
+};
+
+// SVG Icons
+const IconBookOpen=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
+const IconAlertTriangle=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
+const IconChevronRight=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="9 18 15 12 9 6"/></svg>;
+const IconMenu=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>;
+const IconX=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+const IconBarChart2=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>;
+const IconMoon=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>;
+const IconSun=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>;
+const IconPlay=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="5 3 19 12 5 21 5 3"/></svg>;
+const IconPause=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>;
+const IconSquare=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>;
+const IconChevronUp=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="18 15 12 9 6 15"/></svg>;
+const IconArrowRight=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
+const IconFlag=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>;
+const IconTrendingUp=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>;
+const IconUsers=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
+const IconZap=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+const IconLayers=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>;
+const IconCpu=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>;
+const IconGlobe=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>;
+const IconFlask=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 3h6v6l4.5 7.5a2 2 0 0 1-1.7 3H6.2a2 2 0 0 1-1.7-3L9 9V3z"/><line x1="8" y1="3" x2="16" y2="3"/></svg>;
+const IconExternalLink=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>;
+
+const TOTAL = 10; // M0 + M1-M6 + M7(resources) + M8(lab) + M9(analytics)
+const N = 6; // learning modules count
+
+const FlipCard = ({ front, back, t }) => {
+  const [flipped, setFlipped] = useState(false);
+  return (
+    <div className="perspective cursor-pointer h-36" onClick={() => setFlipped(!flipped)}>
+      <div className={`transform-style-3d relative w-full h-full transition-transform duration-500 ${flipped ? 'rotate-y-180' : ''}`}>
+        <div className="backface-hidden absolute inset-0 bg-white dark:bg-slate-800 rounded-xl p-4 flex flex-col items-center justify-center border border-slate-200 dark:border-slate-700 shadow-sm">
+          <p className="font-serif font-bold text-center text-[#004030] dark:text-[#D8C3A5] text-sm">{front}</p>
+          <p className="text-xs text-slate-400 mt-2">{t.flip_prompt}</p>
+        </div>
+        <div className="backface-hidden rotate-y-180 absolute inset-0 bg-[#004030] dark:bg-slate-700 rounded-xl p-4 flex items-center justify-center">
+          <p className="text-sm text-center text-[#D8C3A5] dark:text-slate-200 leading-relaxed">{back}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ModuleQuiz = ({ questions, t, moduleId, onQuizSubmit }) => {
+  const [selected, setSelected] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const [quizIndices] = useState(() =>
+    [...Array(questions.length).keys()].sort(() => Math.random() - 0.5).slice(0, 4)
+  );
+  const handleSubmit = () => {
+    if (Object.keys(selected).length < quizIndices.length) return;
+    const correctCount = quizIndices.filter((qIdx, i) => selected[i] === questions[qIdx].ans).length;
+    setSubmitted(true);
+    onQuizSubmit(moduleId, correctCount, quizIndices.length);
+  };
+  const correctCount = submitted ? quizIndices.filter((qIdx, i) => selected[i] === questions[qIdx].ans).length : 0;
+  return (
+    <div className="mt-8 bg-slate-50 dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-700">
+      <h3 className="font-serif font-bold text-xl text-[#004030] dark:text-[#D8C3A5] mb-6 flex items-center"><IconBookOpen size={20} className="mr-2"/>{t.quiz_title}</h3>
+      {quizIndices.map((qIdx, qi) => {
+        const q = questions[qIdx];
+        return (
+          <div key={qIdx} className="mb-6">
+            <p className="font-semibold text-slate-800 dark:text-slate-200 mb-3">{qi+1}. {q.q}</p>
+            <div className="space-y-2">
+              {q.opts.map((opt, oi) => {
+                let cls = "w-full text-left px-4 py-2.5 rounded-lg border text-sm transition-colors ";
+                if (!submitted) cls += selected[qi]===oi ? "border-[#004030] bg-[#004030]/10 dark:bg-[#D8C3A5]/10 text-[#004030] dark:text-[#D8C3A5] font-semibold" : "border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300";
+                else if (oi===q.ans) cls += "border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 font-semibold";
+                else if (selected[qi]===oi) cls += "border-red-400 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400";
+                else cls += "border-slate-200 dark:border-slate-600 text-slate-500";
+                return <button key={oi} className={cls} onClick={() => !submitted && setSelected({...selected,[qi]:oi})}>{opt}</button>;
+              })}
+            </div>
+            {submitted && <p className="mt-2 text-xs text-slate-500 dark:text-slate-400 italic">{t.explanation}：{q.exp}</p>}
+          </div>
+        );
+      })}
+      {!submitted ? (
+        <button onClick={handleSubmit} disabled={Object.keys(selected).length < quizIndices.length}
+          className="px-6 py-2.5 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-bold rounded-lg disabled:opacity-40 hover:bg-[#002b20] transition-colors">{t.submit}</button>
+      ) : (
+        <div className="flex items-center space-x-4">
+          <span className="font-bold text-lg text-[#004030] dark:text-[#D8C3A5]">{t.score}：{correctCount}/{quizIndices.length}</span>
+          <button onClick={() => {setSelected({});setSubmitted(false);}} className="px-4 py-2 border border-[#004030] dark:border-[#D8C3A5] text-[#004030] dark:text-[#D8C3A5] rounded-lg hover:bg-[#004030]/10 text-sm font-semibold">{t.retry}</button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const LinkCard = ({label, url, desc}) => (
+  <a href={url} target="_blank" rel="noopener noreferrer" className="block bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 hover:border-[#004030] dark:hover:border-[#D8C3A5] hover:shadow-md transition-all group">
+    <div className="flex items-start justify-between gap-2 mb-2">
+      <span className="font-bold font-serif text-sm text-[#004030] dark:text-[#D8C3A5] group-hover:underline leading-snug">{label}</span>
+      <IconExternalLink size={14} className="shrink-0 text-slate-400 group-hover:text-[#004030] dark:group-hover:text-[#D8C3A5]"/>
+    </div>
+    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{desc}</p>
+  </a>
+);
+
+// Lab Component — Assumption Priority Simulator
+const AssumptionLab = ({lang}) => {
+  const [items, setItems] = useState([
+    {name: lang==='zh'?'客戶願付價格':'Customer willingness to pay', imp:3, unc:4},
+    {name: lang==='zh'?'每日銷售拜訪數':'Sales calls per day', imp:4, unc:5},
+    {name: lang==='zh'?'原料成本':'Material cost per unit', imp:3, unc:2},
+    {name: lang==='zh'?'客戶獲取成本':'Customer acquisition cost', imp:5, unc:4},
+    {name: lang==='zh'?'訂單轉換率':'Order conversion rate', imp:4, unc:5},
+  ]);
+  const sorted = [...items].sort((a,b) => (b.imp+b.unc)-(a.imp+a.unc));
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+      <h4 className="font-serif font-bold text-lg text-[#004030] dark:text-[#D8C3A5] mb-4">{lang==='zh'?'假設優先序模擬器':'Assumption Priority Simulator'}</h4>
+      <p className="text-sm text-slate-500 mb-4">{lang==='zh'?'拖曳滑桿調整重要性與不確定性（1-5），觀察優先序變化':'Adjust importance & uncertainty (1-5) sliders to see priority changes'}</p>
+      <div className="space-y-4">
+        {items.map((item, i) => (
+          <div key={i} className="bg-slate-50 dark:bg-slate-900 rounded-lg p-4">
+            <p className="font-semibold text-sm mb-2">{item.name} <span className="text-xs text-slate-400 ml-2">{lang==='zh'?'總分':'Score'}: {item.imp+item.unc}</span></p>
+            <div className="flex items-center gap-4 text-xs">
+              <label className="w-24">{lang==='zh'?'重要性':'Importance'}: {item.imp}</label>
+              <input type="range" min="1" max="5" value={item.imp} onChange={e => {const n=[...items]; n[i]={...n[i],imp:+e.target.value}; setItems(n);}} className="flex-1 accent-[#004030]"/>
+            </div>
+            <div className="flex items-center gap-4 text-xs mt-1">
+              <label className="w-24">{lang==='zh'?'不確定性':'Uncertainty'}: {item.unc}</label>
+              <input type="range" min="1" max="5" value={item.unc} onChange={e => {const n=[...items]; n[i]={...n[i],unc:+e.target.value}; setItems(n);}} className="flex-1 accent-[#D8C3A5]"/>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-6 p-4 bg-[#004030]/5 dark:bg-[#D8C3A5]/5 rounded-lg">
+        <h5 className="font-bold text-sm mb-2">{lang==='zh'?'驗證優先順序（高→低）':'Validation Priority (High→Low)'}</h5>
+        {sorted.map((s,i) => (
+          <div key={i} className="flex items-center gap-3 py-1">
+            <span className="w-6 h-6 rounded-full bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] flex items-center justify-center text-xs font-bold">{i+1}</span>
+            <span className="text-sm flex-1">{s.name}</span>
+            <div className="w-24 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+              <div className="h-2 rounded-full bg-[#004030] dark:bg-[#D8C3A5]" style={{width:`${(s.imp+s.unc)/10*100}%`}}/>
+            </div>
+            <span className="text-xs text-slate-500 w-8 text-right">{s.imp+s.unc}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Sensitivity Chart Lab
+const SensitivityLab = ({lang}) => {
+  const vars = [
+    {name: lang==='zh'?'售價/桌':'Price/desk', base:450, lo:350, hi:550},
+    {name: lang==='zh'?'每筆訂單桌數':'Desks/order', base:5, lo:2, hi:15},
+    {name: lang==='zh'?'原料成本':'Material cost', base:120, lo:100, hi:160},
+    {name: lang==='zh'?'每日銷售電話':'Calls/day', base:10, lo:3, hi:20},
+  ];
+  const baseProfit = 138000;
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+      <h4 className="font-serif font-bold text-lg text-[#004030] dark:text-[#D8C3A5] mb-4">{lang==='zh'?'敏感度分析（龍捲風圖）':'Sensitivity Analysis (Tornado Chart)'}</h4>
+      <p className="text-sm text-slate-500 mb-4">{lang==='zh'?'顯示各假設變動對利潤的相對影響幅度':'Shows relative profit impact of each assumption variation'}</p>
+      <div className="space-y-3">
+        {vars.map((v, i) => {
+          const range = v.hi - v.lo;
+          const maxRange = Math.max(...vars.map(x=>x.hi-x.lo));
+          const pct = (range/maxRange)*100;
+          return (
+            <div key={i} className="flex items-center gap-3">
+              <span className="text-xs w-28 text-right shrink-0">{v.name}</span>
+              <div className="flex-1 h-6 bg-slate-100 dark:bg-slate-700 rounded relative overflow-hidden">
+                <div className="absolute top-0 h-full bg-red-300 dark:bg-red-600/50 rounded-l" style={{left:`${50-pct/2}%`, width:`${pct/2}%`}}/>
+                <div className="absolute top-0 h-full bg-green-300 dark:bg-green-600/50 rounded-r" style={{left:'50%', width:`${pct/2}%`}}/>
+                <div className="absolute top-0 left-1/2 w-px h-full bg-slate-400"/>
+              </div>
+              <span className="text-xs w-20 shrink-0">{v.lo}–{v.hi}</span>
+            </div>
+          );
+        })}
+      </div>
+      <p className="mt-3 text-xs text-slate-400">{lang==='zh'?'紅色=下降影響，綠色=上升影響。長條越長=影響越大':'Red=downside, Green=upside. Longer bars = greater impact'}</p>
+    </div>
+  );
+};
+
+function App() {
+  const [lang, setLang] = useState('zh');
+  const [isDark, setIsDark] = useState(false);
+  const [module, setModule] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+  const [ttsState, setTtsState] = useState('idle');
+  const [studentInfo, setStudentInfo] = useState({group:'',dept:'',id:'',name:''});
+  const [analytics, setAnalytics] = useState({
+    time: Array(N).fill(0), clicks: Array(N).fill(0),
+    quizCorrect: Array(N).fill(0), quizTotal: Array(N).fill(0)
+  });
+  const contentRef = useRef(null);
+  const timerRef = useRef(null);
+  const t = dict[lang];
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [menuOpen]);
+
+  useEffect(() => { isDark ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark'); }, [isDark]);
+
+  useEffect(() => {
+    window.speechSynthesis && window.speechSynthesis.cancel();
+    setTtsState('idle');
+    window.scrollTo({top:0, behavior:'smooth'});
+    if (timerRef.current) clearInterval(timerRef.current);
+    const mi = module - 1;
+    if (mi >= 0 && mi < N) {
+      timerRef.current = setInterval(() => {
+        setAnalytics(a => { const t2=[...a.time]; t2[mi]++; return {...a,time:t2}; });
+      }, 1000);
+    }
+    return () => clearInterval(timerRef.current);
+  }, [module]);
+
+  const handleClick = () => { const mi=module-1; if(mi>=0&&mi<N) setAnalytics(a=>{const c=[...a.clicks];c[mi]++;return{...a,clicks:c};}); };
+  const handleQuizSubmit = (modId, correct, total) => {
+    const mi = modId - 1;
+    if(mi>=0&&mi<N) setAnalytics(a=>{const qc=[...a.quizCorrect];const qt=[...a.quizTotal];qc[mi]=correct;qt[mi]=total;return{...a,quizCorrect:qc,quizTotal:qt};});
+  };
+
+  const handleTTS = (action) => {
+    if (!('speechSynthesis' in window)) return;
+    if (action==='stop'){window.speechSynthesis.cancel();setTtsState('idle');return;}
+    if (action==='pause'){window.speechSynthesis.pause();setTtsState('paused');return;}
+    if (action==='play'){
+      if(ttsState==='paused'){window.speechSynthesis.resume();setTtsState('playing');return;}
+      window.speechSynthesis.cancel();
+      const sep=lang==='zh'?'。 ':'. ';
+      let texts=[];
+      if(module===0) texts=[t.m0_title,t.m0_intro,t.m0_why,t.m0_why_desc].filter(Boolean);
+      else if(module>=1&&module<=6){
+        const mk=`m${module}`;
+        texts=[t[`${mk}_title`],t[`${mk}_p1`],t[`${mk}_p2`],t[`${mk}_p3`],
+          t[`${mk}_case_title`],t[`${mk}_case`],
+          ...(t[`${mk}_cards`]||[]).map(c=>`${c.title}. ${c.desc}`),
+          ...(t[`${mk}_terms`]||[]).flatMap(tm=>[tm.front,tm.back])
+        ].filter(Boolean);
+      } else if(module===7) texts=[t.m7_title,t.m7_desc].filter(Boolean);
+      else if(module===8) texts=[t.mlab_title,t.mlab_desc].filter(Boolean);
+      else texts=[t.analytics_title,t.analytics_desc].filter(Boolean);
+      const text=texts.join(sep);
+      const utterance=new SpeechSynthesisUtterance(text);
+      utterance.rate=0.95;
+      const voices=window.speechSynthesis.getVoices();
+      if(lang==='zh'){const v=voices.find(v=>v.lang==='zh-TW'&&v.name.includes('Yating'))||voices.find(v=>v.lang==='zh-TW')||voices.find(v=>v.lang.startsWith('zh'));if(v)utterance.voice=v;utterance.lang='zh-TW';}
+      else{const v=voices.find(v=>v.lang==='en-GB'&&v.name.includes('Daniel'))||voices.find(v=>v.lang==='en-GB')||voices.find(v=>v.lang.startsWith('en'));if(v)utterance.voice=v;utterance.lang='en-GB';}
+      utterance.onend=()=>setTtsState('idle');
+      utterance.onerror=()=>setTtsState('idle');
+      window.speechSynthesis.speak(utterance);
+      setTtsState('playing');
+    }
+  };
+
+  const handleExportCSV = () => {
+    const BOM='\uFEFF';
+    const mNavKeys=['m1_nav','m2_nav','m3_nav','m4_nav','m5_nav','m6_nav'];
+    const rows=[[t.analytics_group,t.analytics_dept,t.analytics_id,t.analytics_name],[studentInfo.group,studentInfo.dept,studentInfo.id,studentInfo.name],[],
+      [t.analytics_module,t.analytics_time,t.analytics_clicks,t.analytics_acc,t.analytics_correct_ans_total],
+      ...Array.from({length:N},(_,i)=>{
+        const acc=analytics.quizTotal[i]>0?Math.round(analytics.quizCorrect[i]/analytics.quizTotal[i]*100)+'%':t.analytics_no_data;
+        const ans=analytics.quizTotal[i]>0?`${analytics.quizCorrect[i]}/${analytics.quizTotal[i]}/8`:t.analytics_no_data;
+        return[t[mNavKeys[i]],analytics.time[i]+t.analytics_sec,analytics.clicks[i]+t.analytics_times,acc,ans];
+      })];
+    const csv=BOM+rows.map(r=>r.join(',')).join('\n');
+    const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='learning_analytics.csv';a.click();
+  };
+
+  const modulesList = [
+    {id:0,icon:<IconFlag size={16}/>,title:t.m0_nav},
+    {id:1,icon:<IconTrendingUp size={16}/>,title:t.m1_nav},
+    {id:2,icon:<IconUsers size={16}/>,title:t.m2_nav},
+    {id:3,icon:<IconZap size={16}/>,title:t.m3_nav},
+    {id:4,icon:<IconCpu size={16}/>,title:t.m4_nav},
+    {id:5,icon:<IconLayers size={16}/>,title:t.m5_nav},
+    {id:6,icon:<IconBarChart2 size={16}/>,title:t.m6_nav},
+    {id:7,icon:<IconGlobe size={16}/>,title:t.m7_nav},
+    {id:8,icon:<IconFlask size={16}/>,title:t.mlab_nav},
+    {id:9,icon:<IconBarChart2 size={16}/>,title:t.analytics_title}
+  ];
+
+  const renderNavBottom = () => (
+    <div className="mt-12 flex justify-between items-center pt-8 border-t border-slate-300 dark:border-slate-700">
+      <button onClick={()=>setModule(Math.max(0,module-1))} disabled={module===0} className="px-6 py-3 font-serif font-bold text-slate-500 hover:text-[#004030] dark:hover:text-[#D8C3A5] disabled:opacity-0 transition-colors flex items-center uppercase text-sm tracking-wider">← {t.nav_prev}</button>
+      <button onClick={()=>setModule(Math.min(TOTAL-1,module+1))} disabled={module===TOTAL-1} className="px-8 py-3 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-serif font-bold hover:bg-[#002b20] disabled:opacity-0 transition-colors flex items-center uppercase text-sm tracking-wider shadow-md">{t.nav_next} <IconArrowRight size={16} className="ml-2"/></button>
+    </div>
+  );
+
+  const renderModule = (mKey, modId) => {
+    const base="space-y-6 text-base leading-relaxed text-slate-700 dark:text-slate-300 animate-fade-in";
+    return (
+      <div className={base}>
+        <h2 className="text-3xl md:text-4xl font-serif font-black text-[#004030] dark:text-[#D8C3A5] border-b-2 border-[#D8C3A5] pb-4">{t[`${mKey}_title`]}</h2>
+        <p>{t[`${mKey}_p1`]}</p>
+        <p className="p-4 bg-slate-100 dark:bg-slate-800 rounded-lg italic font-serif text-slate-600 dark:text-slate-300">{t[`${mKey}_p2`]}</p>
+        <p>{t[`${mKey}_p3`]}</p>
+        <div className="grid md:grid-cols-2 gap-6">
+          {t[`${mKey}_cards`].map((c,i)=>(
+            <div key={i} className="bg-white dark:bg-slate-800 p-6 rounded-xl border-l-4 border-[#004030] shadow-sm hover:shadow-md transition-shadow">
+              <h3 className="text-lg font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-2">{c.title}</h3>
+              <p className="text-sm whitespace-pre-line">{c.desc}</p>
+            </div>
+          ))}
+        </div>
+        {/* Micro Case */}
+        <div className="bg-[#004030] text-[#D8C3A5] p-6 rounded-xl shadow-md">
+          <h4 className="font-bold font-serif text-lg mb-3 flex items-center"><IconBookOpen size={20} className="mr-2"/>{t[`${mKey}_case_title`]}</h4>
+          <p className="text-sm opacity-90 leading-relaxed">{t[`${mKey}_case`]}</p>
+        </div>
+        <div className="mt-8"><h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">{t.key_terms}</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">{t[`${mKey}_terms`].map((term,i)=><FlipCard key={i} front={term.front} back={term.back} t={t}/>)}</div></div>
+        <ModuleQuiz questions={t[`${mKey}_q`]} t={t} moduleId={modId} onQuizSubmit={handleQuizSubmit}/>
+        {renderNavBottom()}
+      </div>
+    );
+  };
+
+  const renderContent = () => {
+    const base="space-y-6 text-base leading-relaxed text-slate-700 dark:text-slate-300 animate-fade-in";
+    // M0 Overview
+    if(module===0) return (
+      <div className={`space-y-8 ${base}`}>
+        <div className="bg-[#004030] dark:bg-slate-800 rounded-2xl p-8 text-white">
+          <p className="text-xs font-bold uppercase tracking-widest text-[#D8C3A5] mb-3">{lang==='zh'?'課程簡介':'Course Introduction'}</p>
+          <h2 className="text-3xl md:text-4xl font-serif font-black text-white mb-4">{t.m0_title}</h2>
+          <p className="text-[#D8C3A5]/90 text-base leading-relaxed">{t.m0_intro}</p>
+        </div>
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border-l-4 border-[#D8C3A5] shadow-sm">
+          <h3 className="text-xl font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-3">{t.m0_why}</h3>
+          <p className="text-base">{t.m0_why_desc}</p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {t.m0_stats.map((s,i)=>(
+            <div key={i} className="bg-white dark:bg-slate-800 rounded-xl p-5 text-center shadow-sm border border-slate-200 dark:border-slate-700">
+              <div className="text-2xl md:text-3xl font-black font-serif text-[#004030] dark:text-[#D8C3A5] mb-1">{s.val}</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">{s.label}</div>
+            </div>
+          ))}
+        </div>
+        <div>
+          <h3 className="text-lg font-bold uppercase tracking-wider text-slate-500 mb-4">{lang==='zh'?'課程模組':'Course Modules'}</h3>
+          <div className="space-y-3">
+            {t.m0_modules.map((m,i)=>(
+              <button key={i} onClick={()=>setModule(i+1)} className="w-full flex items-center gap-5 bg-white dark:bg-slate-800 rounded-xl px-6 py-4 border border-slate-200 dark:border-slate-700 hover:border-[#004030] dark:hover:border-[#D8C3A5] shadow-sm hover:shadow-md transition-all group text-left">
+                <div className="text-3xl font-black font-serif text-[#D8C3A5] w-10 shrink-0">{m.num}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-1">{m.title}</div>
+                  <div className="text-sm text-slate-500">{m.desc}</div>
+                </div>
+                <IconChevronRight size={20} className="text-slate-300 group-hover:text-[#004030] dark:group-hover:text-[#D8C3A5] shrink-0"/>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="flex justify-end">
+          <button onClick={()=>setModule(1)} className="px-8 py-3 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-serif font-bold rounded-lg shadow-md hover:bg-[#002b20] transition-colors">{t.m0_start}</button>
+        </div>
+      </div>
+    );
+    // M1-M6
+    if(module>=1&&module<=6) return renderModule(`m${module}`, module);
+    // M7 Resources
+    if(module===7) {
+      const resources = [
+        {cat: lang==='zh'?'📚 學術框架':'📚 Academic Frameworks', items:[
+          {label: lang==='zh'?'Gans & Stern：創業策略選擇':'Gans & Stern: Entrepreneurial Strategy', url:'https://mitsloan.mit.edu/ideas-made-to-matter/a-new-framework-entrepreneurial-strategy', desc: lang==='zh'?'MIT Sloan 原創研究：如何選擇合作 vs. 競爭策略':'MIT Sloan original research on cooperation vs. competition strategy'},
+          {label: lang==='zh'?'Christensen：破壞式創新理論':'Christensen: Disruptive Innovation Theory', url:'https://hbr.org/2015/12/what-is-disruptive-innovation', desc: lang==='zh'?'HBR 經典文章：澄清破壞式創新的常見誤解':'HBR classic: clarifying common misconceptions about disruption'},
+          {label: lang==='zh'?'MacMillan & McGrath：探索驅動規劃':'MacMillan & McGrath: Discovery Driven Planning', url:'https://hbr.org/1995/07/discovery-driven-planning', desc: lang==='zh'?'HBR 原始論文：DDP 方法論的開創性著作':'HBR original paper: foundational work on DDP methodology'},
+        ]},
+        {cat: lang==='zh'?'🎯 案例分析':'🎯 Case Studies', items:[
+          {label: lang==='zh'?'Oatly 市場進入策略深度分析':'Oatly Strategic Market Entry Analysis', url:'https://shahmm.medium.com/oatlys-strategic-market-entry-disrupting-the-us-alternative-milk-market-973e0eb3ea4a', desc: lang==='zh'?'Medium 深度分析 Oatly 的灘頭堡策略與品牌建構':'Medium deep-dive on Oatly beachhead strategy and brand building'},
+          {label: lang==='zh'?'IDEO 人本設計方法論':'IDEO Human-Centered Design', url:'https://www.hbs.edu/faculty/Pages/item.aspx?num=48085', desc: lang==='zh'?'HBS 案例：IDEO 與 Cineplanet 的設計思維實踐':'HBS case: IDEO and Cineplanet design thinking in practice'},
+          {label: lang==='zh'?'MIT Sloan：灘頭堡市場策略指南':'MIT Sloan: Beachhead Market Guide', url:'https://executive.mit.edu/launching-a-successful-start-up-3-the-beachhead-market-MC7FUMDZ6IU5AIPP4WGIPN2PZJI4.html', desc: lang==='zh'?'Bill Aulet 的灘頭堡市場實踐框架':'Bill Aulet practical framework for beachhead markets'},
+        ]},
+        {cat: lang==='zh'?'🛠 實用工具':'🛠 Practical Tools', items:[
+          {label: lang==='zh'?'Ulrich：創意發想實證研究':'Ulrich: Idea Generation Research', url:'https://pubsonline.informs.org/doi/abs/10.1287/mnsc.1090.1144', desc: lang==='zh'?'Management Science 原始論文：混合式流程的實證數據':'Management Science paper: empirical data on hybrid ideation'},
+          {label: lang==='zh'?'精實畫布（Lean Canvas）工具':'Lean Canvas Tool', url:'https://leanstack.com/lean-canvas', desc: lang==='zh'?'一頁式商業模式與假設規劃工具':'One-page business model and assumption planning tool'},
+        ]},
+      ];
+      return (
+        <div className={base}>
+          <h2 className="text-3xl md:text-4xl font-serif font-black text-[#004030] dark:text-[#D8C3A5] border-b-2 border-[#D8C3A5] pb-4">{t.m7_title}</h2>
+          <p className="text-slate-500 dark:text-slate-400">{t.m7_desc}</p>
+          {resources.map((sec,si)=>(
+            <div key={si}>
+              <h3 className="text-xl font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-4">{sec.cat}</h3>
+              <div className="grid md:grid-cols-2 gap-3 mb-6">{sec.items.map((l,i)=><LinkCard key={i} {...l}/>)}</div>
+            </div>
+          ))}
+          <div className="bg-[#004030]/5 dark:bg-[#D8C3A5]/5 rounded-xl p-5 border border-[#004030]/20 dark:border-[#D8C3A5]/20">
+            <p className="text-sm text-slate-600 dark:text-slate-400">⚠️ {lang==='zh'?'以上連結為外部資源，僅供學術參考。連結有效性可能隨時間變化。':'External links for academic reference only. Link availability may change over time.'}</p>
+          </div>
+          {renderNavBottom()}
+        </div>
+      );
+    }
+    // M8 Lab
+    if(module===8) return (
+      <div className={base}>
+        <h2 className="text-3xl md:text-4xl font-serif font-black text-[#004030] dark:text-[#D8C3A5] border-b-2 border-[#D8C3A5] pb-4">{t.mlab_title}</h2>
+        <p className="text-slate-500 dark:text-slate-400">{t.mlab_desc}</p>
+        <AssumptionLab lang={lang}/>
+        <SensitivityLab lang={lang}/>
+        {renderNavBottom()}
+      </div>
+    );
+    // M9 Analytics
+    if(module===9) {
+      const totalTime=analytics.time.reduce((a,b)=>a+b,0);
+      const totalClicks=analytics.clicks.reduce((a,b)=>a+b,0);
+      const totalCorrect=analytics.quizCorrect.reduce((a,b)=>a+b,0);
+      const totalAnswered=analytics.quizTotal.reduce((a,b)=>a+b,0);
+      const overallAcc=totalAnswered>0?Math.round(totalCorrect/totalAnswered*100)+'%':t.analytics_no_data;
+      const canExport=studentInfo.group&&studentInfo.dept&&studentInfo.id&&studentInfo.name;
+      const mNavKeys=['m1_nav','m2_nav','m3_nav','m4_nav','m5_nav','m6_nav'];
+      return (
+        <div className={base}>
+          <h2 className="text-3xl md:text-4xl font-serif font-black text-[#004030] dark:text-[#D8C3A5] border-b-2 border-[#D8C3A5] pb-4">{t.analytics_title}</h2>
+          <p className="text-slate-500 dark:text-slate-400">{t.analytics_desc}</p>
+          <div className="grid grid-cols-3 gap-4">
+            {[{label:t.analytics_total_time,val:totalTime+t.analytics_sec},{label:t.analytics_total_clicks,val:totalClicks+t.analytics_times},{label:t.analytics_overall_acc,val:overallAcc}].map((s,i)=>(
+              <div key={i} className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 text-center shadow-sm">
+                <p className="text-2xl font-black font-serif text-[#004030] dark:text-[#D8C3A5]">{s.val}</p>
+                <p className="text-xs text-slate-500 mt-1">{s.label}</p>
+              </div>
+            ))}
+          </div>
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+            <table className="w-full text-sm"><thead><tr className="bg-[#004030] text-[#D8C3A5]">
+              <th className="text-left p-3">{t.analytics_module}</th><th className="text-center p-3">{t.analytics_time}</th><th className="text-center p-3">{t.analytics_clicks}</th><th className="text-center p-3">{t.analytics_acc}</th>
+            </tr></thead><tbody>
+              {Array.from({length:N},(_,i)=>{
+                const acc=analytics.quizTotal[i]>0?Math.round(analytics.quizCorrect[i]/analytics.quizTotal[i]*100)+'%':t.analytics_no_data;
+                return <tr key={i} className="border-t border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                  <td className="p-3 font-medium text-[#004030] dark:text-[#D8C3A5]">{t[mNavKeys[i]]}</td>
+                  <td className="p-3 text-center">{analytics.time[i]}{t.analytics_sec}</td>
+                  <td className="p-3 text-center">{analytics.clicks[i]}{t.analytics_times}</td>
+                  <td className="p-3 text-center">{acc}</td>
+                </tr>;
+              })}
+            </tbody></table>
+          </div>
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+            <h3 className="font-serif font-bold text-lg text-[#004030] dark:text-[#D8C3A5] mb-4">{t.analytics_form_title}</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div><label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">{t.analytics_group}</label>
+                <select value={studentInfo.group} onChange={e=>setStudentInfo({...studentInfo,group:e.target.value})} className="w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+                  <option value="">--</option>{t.group_options.map(g=><option key={g} value={g}>{g}</option>)}</select></div>
+              <div><label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">{t.analytics_dept}</label>
+                <input value={studentInfo.dept} onChange={e=>setStudentInfo({...studentInfo,dept:e.target.value})} placeholder={t.analytics_dept_ph} className="w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"/></div>
+              <div><label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">{t.analytics_id}</label>
+                <input value={studentInfo.id} onChange={e=>setStudentInfo({...studentInfo,id:e.target.value})} placeholder={t.analytics_id_ph} className="w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"/></div>
+              <div><label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">{t.analytics_name}</label>
+                <input value={studentInfo.name} onChange={e=>setStudentInfo({...studentInfo,name:e.target.value})} placeholder={t.analytics_name_ph} className="w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"/></div>
+            </div>
+            <button onClick={handleExportCSV} disabled={!canExport} className="mt-4 px-6 py-2.5 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-bold rounded-lg disabled:opacity-40 hover:bg-[#002b20] transition-colors text-sm">{canExport?t.analytics_export_csv:t.analytics_fill_required}</button>
+          </div>
+          {renderNavBottom()}
+        </div>
+      );
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#f4f4f4] dark:bg-[#121212] font-sans selection:bg-[#004030] selection:text-white dark:selection:bg-[#D8C3A5] dark:selection:text-[#004030] flex flex-col overflow-x-hidden pt-16">
+      <header className="fixed top-0 left-0 right-0 h-16 bg-[#004030] dark:bg-slate-900 text-white z-50 shadow-lg border-b border-[#D8C3A5]/30">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="relative" ref={menuRef}>
+              <button className="p-2 hover:bg-white/10 rounded-lg" onClick={()=>setMenuOpen(!menuOpen)}>{menuOpen?<IconX size={20}/>:<IconMenu size={20}/>}</button>
+              {menuOpen&&(<div className="absolute top-full left-0 mt-1 w-64 max-w-[calc(100vw-2rem)] max-h-[calc(100vh-5rem)] overflow-y-auto bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 z-[100] overflow-x-hidden">
+                <div className="bg-[#004030]/5 dark:bg-[#D8C3A5]/5 px-4 py-2 border-b border-slate-200 dark:border-slate-700"><p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t.nav_modules}</p></div>
+                {modulesList.map(m=>(<button key={m.id} onClick={()=>{setModule(m.id);setMenuOpen(false);}} className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors text-left ${module===m.id?'bg-[#004030] text-white dark:bg-[#D8C3A5]/20 dark:text-[#D8C3A5] font-bold':'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}><span className={module===m.id?'text-[#D8C3A5]':'opacity-50'}>{m.icon}</span><span className="truncate">{m.title}</span></button>))}
+              </div>)}
+            </div>
+            <button onClick={()=>window.scrollTo({top:0,behavior:'smooth'})} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <div className="font-serif font-black text-lg tracking-widest text-[#D8C3A5]">ENT</div>
+              <div className="hidden sm:block text-left"><h1 className="font-serif font-bold text-sm md:text-base leading-tight">{t.title}</h1><p className="text-[10px] text-[#D8C3A5]/70">{t.subtitle}</p></div>
+            </button>
+          </div>
+          <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-1 mr-2">
+              {ttsState!=='playing'?(<button onClick={()=>handleTTS('play')} title={t.audio_read} className="p-2 rounded-full hover:bg-white/10 transition-colors flex items-center space-x-1 text-xs"><IconPlay size={14}/><span className="hidden md:inline">{t.audio_read}</span></button>):(<button onClick={()=>handleTTS('pause')} className="p-2 rounded-full hover:bg-white/10 transition-colors"><IconPause size={14}/></button>)}
+              {ttsState!=='idle'&&<button onClick={()=>handleTTS('stop')} className="p-2 rounded-full hover:bg-white/10 transition-colors"><IconSquare size={14}/></button>}
+            </div>
+            <button onClick={()=>setLang(lang==='zh'?'en':'zh')} className="px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-sm font-bold transition-colors">{lang==='zh'?'EN':'中文'}</button>
+            <button onClick={()=>setIsDark(!isDark)} className="p-2 rounded-full hover:bg-white/10 transition-colors">{isDark?<IconSun size={18}/>:<IconMoon size={18}/>}</button>
+          </div>
+        </div>
+      </header>
+      <div className="max-w-7xl mx-auto w-full px-3 sm:px-4 lg:px-6 flex-1 flex flex-col md:flex-row gap-0 py-6">
+        <aside className="hidden md:block w-64 shrink-0 mr-6">
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden sticky top-24">
+            <div className="bg-[#004030]/5 dark:bg-[#D8C3A5]/5 px-4 py-3 border-b border-slate-200 dark:border-slate-700"><p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t.nav_modules}</p></div>
+            <nav className="space-y-0.5 p-2">
+              {modulesList.map(m=>(<button key={m.id} onClick={()=>{setModule(m.id);setMenuOpen(false);}} className={`w-full flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left ${module===m.id?'bg-[#004030] dark:bg-[#D8C3A5]/20 text-white dark:text-[#D8C3A5] border border-[#D8C3A5]/30':'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}><span className={`mr-2.5 ${module===m.id?'text-[#D8C3A5]':'opacity-50'}`}>{m.icon}</span><span className="truncate">{m.title}</span>{module===m.id&&<IconChevronRight size={14} className="ml-auto opacity-50 shrink-0"/>}</button>))}
+            </nav>
+          </div>
+        </aside>
+        <main ref={contentRef} className="flex-1 min-w-0" onClick={handleClick}>
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 md:p-8">{renderContent()}</div>
+        </main>
+      </div>
+      <footer className="bg-[#004030] dark:bg-slate-950 text-slate-300 dark:text-slate-400 border-t border-[#D8C3A5]">
+        <div className="max-w-7xl mx-auto px-4 h-8 flex justify-between items-center text-[10px] sm:text-xs">
+          <div className="flex items-center space-x-2 md:space-x-4">
+            <div className="font-serif font-black text-[#D8C3A5] hidden sm:block tracking-widest text-sm">ENT</div>
+            <span className="truncate">{t.copyright} · {t.date}</span>
+          </div>
+          <div className="flex items-center space-x-3 md:space-x-4">
+            <span className="text-[#D8C3A5]/70 font-serif hidden sm:inline">Architect:&nbsp;<a href={t.architect_url} target="_blank" rel="noopener noreferrer" className="text-[#D8C3A5] hover:text-white underline underline-offset-2 transition-colors">{t.architect_name}</a></span>
+            <button onClick={()=>window.scrollTo({top:0,behavior:'smooth'})} className="flex items-center uppercase tracking-widest hover:text-white transition-colors border-l border-slate-600 pl-3"><IconChevronUp size={12} className="md:mr-1"/><span className="hidden sm:inline">TOP</span></button>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
