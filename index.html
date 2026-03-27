@@ -50,7 +50,7 @@ analytics_group: "組別", analytics_dept: "系級",
 analytics_dept_ph: "例：IBS3", analytics_id: "學號", analytics_id_ph: "例：112212099",
 analytics_name: "姓名", analytics_name_ph: "例：Jimmy Lo",
 analytics_export_csv: "匯出 CSV 歷程記錄", analytics_fill_required: "請填寫完整資訊以解鎖匯出",
-group_options: ["G1","G2","G3","G4","G5","Others"],
+group_options: ["G1","G2","G3","G4","G5","G6","G7","G8","G9","G10","G11","G12","Others"],
 analytics_total_time: "總學習時間", analytics_total_clicks: "總互動點擊",
 analytics_overall_acc: "總體測驗答對率",
 analytics_module: "模組", analytics_time: "停留時間",
@@ -278,7 +278,7 @@ analytics_group: "Group", analytics_dept: "Department",
 analytics_dept_ph: "e.g., IBS3", analytics_id: "Student ID", analytics_id_ph: "e.g., 112212099",
 analytics_name: "Name", analytics_name_ph: "e.g., Jimmy Lo",
 analytics_export_csv: "Export CSV Records", analytics_fill_required: "Complete all fields to unlock export",
-group_options: ["G1","G2","G3","G4","G5","Others"],
+group_options: ["G1","G2","G3","G4","G5","G6","G7","G8","G9","G10","G11","G12","Others"],
 analytics_total_time: "Total Study Time", analytics_total_clicks: "Total Interactions",
 analytics_overall_acc: "Overall Quiz Accuracy",
 analytics_module: "Module", analytics_time: "Time Spent",
@@ -761,17 +761,19 @@ function App() {
     const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='learning_analytics.csv';a.click();
   };
 
+  // 統一移除字典中標題前綴的數字，並於渲染時加上 `m.id.` 以確保格式一致
+  const getCleanTitle = (str) => str ? str.replace(/^\d+\.\s*/, '') : '';
   const modulesList = [
-    {id:0,icon:<IconFlag size={16}/>,title:t.m0_nav},
-    {id:1,icon:<IconTrendingUp size={16}/>,title:t.m1_nav},
-    {id:2,icon:<IconUsers size={16}/>,title:t.m2_nav},
-    {id:3,icon:<IconZap size={16}/>,title:t.m3_nav},
-    {id:4,icon:<IconCpu size={16}/>,title:t.m4_nav},
-    {id:5,icon:<IconLayers size={16}/>,title:t.m5_nav},
-    {id:6,icon:<IconBarChart2 size={16}/>,title:t.m6_nav},
-    {id:7,icon:<IconGlobe size={16}/>,title:t.m7_nav},
-    {id:8,icon:<IconFlask size={16}/>,title:t.mlab_nav},
-    {id:9,icon:<IconBarChart2 size={16}/>,title:t.analytics_title}
+    {id:0,icon:<IconFlag size={16}/>,title:getCleanTitle(t.m0_nav)},
+    {id:1,icon:<IconTrendingUp size={16}/>,title:getCleanTitle(t.m1_nav)},
+    {id:2,icon:<IconUsers size={16}/>,title:getCleanTitle(t.m2_nav)},
+    {id:3,icon:<IconZap size={16}/>,title:getCleanTitle(t.m3_nav)},
+    {id:4,icon:<IconCpu size={16}/>,title:getCleanTitle(t.m4_nav)},
+    {id:5,icon:<IconLayers size={16}/>,title:getCleanTitle(t.m5_nav)},
+    {id:6,icon:<IconBarChart2 size={16}/>,title:getCleanTitle(t.m6_nav)},
+    {id:7,icon:<IconGlobe size={16}/>,title:getCleanTitle(t.m7_nav)},
+    {id:8,icon:<IconFlask size={16}/>,title:getCleanTitle(t.mlab_nav)},
+    {id:9,icon:<IconBarChart2 size={16}/>,title:getCleanTitle(t.analytics_title)}
   ];
 
   const renderNavBottom = () => (
@@ -804,7 +806,8 @@ function App() {
         </div>
         <div className="mt-8"><h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">{t.key_terms}</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">{t[`${mKey}_terms`].map((term,i)=><FlipCard key={i} front={term.front} back={term.back} t={t}/>)}</div></div>
-        <ModuleQuiz questions={t[`${mKey}_q`]} t={t} moduleId={modId} onQuizSubmit={handleQuizSubmit}/>
+        {/* 在此加上 key={modId} 讓每次切換模組時組件重新掛載，避免狀態殘留 */}
+        <ModuleQuiz key={modId} questions={t[`${mKey}_q`]} t={t} moduleId={modId} onQuizSubmit={handleQuizSubmit}/>
         {renderNavBottom()}
       </div>
     );
@@ -965,7 +968,8 @@ function App() {
               <button className="p-2 hover:bg-white/10 rounded-lg" onClick={()=>setMenuOpen(!menuOpen)}>{menuOpen?<IconX size={20}/>:<IconMenu size={20}/>}</button>
               {menuOpen&&(<div className="absolute top-full left-0 mt-1 w-64 max-w-[calc(100vw-2rem)] max-h-[calc(100vh-5rem)] overflow-y-auto bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 z-[100] overflow-x-hidden">
                 <div className="bg-[#004030]/5 dark:bg-[#D8C3A5]/5 px-4 py-2 border-b border-slate-200 dark:border-slate-700"><p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t.nav_modules}</p></div>
-                {modulesList.map(m=>(<button key={m.id} onClick={()=>{setModule(m.id);setMenuOpen(false);}} className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors text-left ${module===m.id?'bg-[#004030] text-white dark:bg-[#D8C3A5]/20 dark:text-[#D8C3A5] font-bold':'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}><span className={module===m.id?'text-[#D8C3A5]':'opacity-50'}>{m.icon}</span><span className="truncate">{m.title}</span></button>))}
+                {/* 漢堡目錄渲染處，強制加上 m.id 確保最左邊有數字 */}
+                {modulesList.map(m=>(<button key={m.id} onClick={()=>{setModule(m.id);setMenuOpen(false);}} className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors text-left ${module===m.id?'bg-[#004030] text-white dark:bg-[#D8C3A5]/20 dark:text-[#D8C3A5] font-bold':'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}><span className={module===m.id?'text-[#D8C3A5]':'opacity-50'}>{m.icon}</span><span className="truncate">{m.id}. {m.title}</span></button>))}
               </div>)}
             </div>
             <button onClick={()=>window.scrollTo({top:0,behavior:'smooth'})} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
@@ -988,7 +992,8 @@ function App() {
           <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden sticky top-24">
             <div className="bg-[#004030]/5 dark:bg-[#D8C3A5]/5 px-4 py-3 border-b border-slate-200 dark:border-slate-700"><p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t.nav_modules}</p></div>
             <nav className="space-y-0.5 p-2">
-              {modulesList.map(m=>(<button key={m.id} onClick={()=>{setModule(m.id);setMenuOpen(false);}} className={`w-full flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left ${module===m.id?'bg-[#004030] dark:bg-[#D8C3A5]/20 text-white dark:text-[#D8C3A5] border border-[#D8C3A5]/30':'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}><span className={`mr-2.5 ${module===m.id?'text-[#D8C3A5]':'opacity-50'}`}>{m.icon}</span><span className="truncate">{m.title}</span>{module===m.id&&<IconChevronRight size={14} className="ml-auto opacity-50 shrink-0"/>}</button>))}
+              {/* 側邊欄渲染處，同樣強制加上 m.id */}
+              {modulesList.map(m=>(<button key={m.id} onClick={()=>{setModule(m.id);setMenuOpen(false);}} className={`w-full flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left ${module===m.id?'bg-[#004030] dark:bg-[#D8C3A5]/20 text-white dark:text-[#D8C3A5] border border-[#D8C3A5]/30':'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}><span className={`mr-2.5 ${module===m.id?'text-[#D8C3A5]':'opacity-50'}`}>{m.icon}</span><span className="truncate">{m.id}. {m.title}</span>{module===m.id&&<IconChevronRight size={14} className="ml-auto opacity-50 shrink-0"/>}</button>))}
             </nav>
           </div>
         </aside>
