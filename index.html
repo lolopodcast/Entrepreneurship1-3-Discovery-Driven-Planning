@@ -4,11 +4,43 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>創業學：機會識別與規劃 | Wharton 互動學習</title>
+
+<!-- 防禦機制 1: 網域白名單與防框架嵌入 (Domain Lock & Iframe Busting) -->
+<script>
+(function() {
+  try {
+    var hostname = window.location.hostname;
+    var protocol = window.location.protocol;
+    var allowedDomains = ['lolopodcast.github.io', 'localhost', '127.0.0.1', ''];
+    var isSandbox = hostname.indexOf('googleusercontent.com') !== -1 || hostname.indexOf('gemini') !== -1 || protocol === 'data:' || protocol === 'blob:' || protocol === 'file:';
+    var profUrl = "https://www.ibs.ncnu.edu.tw/index.php/faculty/tenured-professor/299-smlo";
+
+    if (!allowedDomains.includes(hostname) && !isSandbox) {
+      window.location.replace(profUrl);
+    }
+    if (window.top !== window.self) {
+      var isSafe = false;
+      try {
+        if (allowedDomains.includes(window.top.location.hostname) || isSandbox) {
+          isSafe = true;
+        }
+      } catch (e) { isSafe = false; }
+      if (!isSafe && !isSandbox) {
+        window.location.replace(profUrl);
+      }
+    }
+  } catch(err) {}
+})();
+</script>
+
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<!-- 防禦機制 2: 導入 DOMPurify 預防 XSS 攻擊 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
+
 <script>
 tailwind.config = {
   darkMode: 'class',
@@ -17,7 +49,9 @@ tailwind.config = {
 </script>
 <style>
 @keyframes fadeInUp { from{opacity:0;transform:translateY(15px)} to{opacity:1;transform:translateY(0)} }
+@keyframes toastIn { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
 .animate-fade-in { animation: fadeInUp 0.5s ease-out forwards; }
+.animate-toast { animation: toastIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 .perspective { perspective: 1000px; }
 .transform-style-3d { transform-style: preserve-3d; }
 .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
@@ -27,7 +61,7 @@ tailwind.config = {
 .dark ::-webkit-scrollbar-thumb { background: #475569; }
 </style>
 </head>
-<body>
+<body class="selection:bg-[#004030] selection:text-white dark:selection:bg-[#D8C3A5] dark:selection:text-[#004030] overflow-x-hidden">
 <div id="root"></div>
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;
@@ -57,6 +91,7 @@ analytics_module: "模組", analytics_time: "停留時間",
 analytics_clicks: "點擊次數", analytics_acc: "答對率",
 analytics_correct_ans_total: "答對 / 已答 / 總題數",
 analytics_no_data: "尚未測驗", analytics_sec: "秒", analytics_times: "次",
+copyright_toast: "Intellectual Property of Prof. Shihmin Lo",
 
 // M0
 m0_nav: "0. 課程總覽",
@@ -285,6 +320,7 @@ analytics_module: "Module", analytics_time: "Time Spent",
 analytics_clicks: "Clicks", analytics_acc: "Accuracy",
 analytics_correct_ans_total: "Correct / Answered / Total",
 analytics_no_data: "Not taken", analytics_sec: "s", analytics_times: "x",
+copyright_toast: "Intellectual Property of Prof. Shihmin Lo",
 
 m0_nav: "0. Overview",
 m0_title: "Opportunity Identification & Venture Planning",
@@ -485,29 +521,34 @@ architect_url: "https://www.ibs.ncnu.edu.tw/index.php/faculty/tenured-professor/
 }
 };
 
-// SVG Icons
-const IconBookOpen=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
-const IconAlertTriangle=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
-const IconChevronRight=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="9 18 15 12 9 6"/></svg>;
-const IconMenu=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>;
-const IconX=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
-const IconBarChart2=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>;
-const IconMoon=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>;
-const IconSun=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>;
-const IconPlay=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="5 3 19 12 5 21 5 3"/></svg>;
-const IconPause=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>;
-const IconSquare=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>;
-const IconChevronUp=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="18 15 12 9 6 15"/></svg>;
-const IconArrowRight=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
-const IconFlag=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>;
-const IconTrendingUp=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>;
-const IconUsers=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
-const IconZap=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
-const IconLayers=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>;
-const IconCpu=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>;
-const IconGlobe=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>;
-const IconFlask=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 3h6v6l4.5 7.5a2 2 0 0 1-1.7 3H6.2a2 2 0 0 1-1.7-3L9 9V3z"/><line x1="8" y1="3" x2="16" y2="3"/></svg>;
-const IconExternalLink=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>;
+/* ============================================================
+   SVG ICONS - 防禦機制 3: 防拖曳與防複製
+   ============================================================ */
+const svgProps = { draggable: "false", className: "pointer-events-none select-none" };
+
+const IconBookOpen=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
+const IconAlertTriangle=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
+const IconChevronRight=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><polyline points="9 18 15 12 9 6"/></svg>;
+const IconChevronUp=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><polyline points="18 15 12 9 6 15"/></svg>;
+const IconMenu=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="18" x2="20" y2="18"/></svg>;
+const IconX=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+const IconBarChart2=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>;
+const IconMoon=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>;
+const IconSun=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>;
+const IconPlay=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><polygon points="5 3 19 12 5 21 5 3"/></svg>;
+const IconPause=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>;
+const IconSquare=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>;
+const IconArrowRight=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
+const IconFlag=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>;
+const IconTrendingUp=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>;
+const IconUsers=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
+const IconZap=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+const IconLayers=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>;
+const IconCpu=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>;
+const IconGlobe=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>;
+const IconFlask=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><path d="M9 3h6v6l4.5 7.5a2 2 0 0 1-1.7 3H6.2a2 2 0 0 1-1.7-3L9 9V3z"/><line x1="8" y1="3" x2="16" y2="3"/></svg>;
+const IconExternalLink=({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>;
+const IconShield = ({size=24,className=""})=><svg {...svgProps} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${svgProps.className}`}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
 
 const TOTAL = 10; // M0 + M1-M6 + M7(resources) + M8(lab) + M9(analytics)
 const N = 6; // learning modules count
@@ -515,14 +556,14 @@ const N = 6; // learning modules count
 const FlipCard = ({ front, back, t }) => {
   const [flipped, setFlipped] = useState(false);
   return (
-    <div className="perspective cursor-pointer h-36" onClick={() => setFlipped(!flipped)}>
+    <div className="perspective cursor-pointer h-36 select-none" onClick={() => setFlipped(!flipped)}>
       <div className={`transform-style-3d relative w-full h-full transition-transform duration-500 ${flipped ? 'rotate-y-180' : ''}`}>
         <div className="backface-hidden absolute inset-0 bg-white dark:bg-slate-800 rounded-xl p-4 flex flex-col items-center justify-center border border-slate-200 dark:border-slate-700 shadow-sm">
-          <p className="font-serif font-bold text-center text-[#004030] dark:text-[#D8C3A5] text-sm">{front}</p>
+          <p className="font-serif font-bold text-center text-[#004030] dark:text-[#D8C3A5] text-sm select-text">{front}</p>
           <p className="text-xs text-slate-400 mt-2">{t.flip_prompt}</p>
         </div>
         <div className="backface-hidden rotate-y-180 absolute inset-0 bg-[#004030] dark:bg-slate-700 rounded-xl p-4 flex items-center justify-center">
-          <p className="text-sm text-center text-[#D8C3A5] dark:text-slate-200 leading-relaxed">{back}</p>
+          <p className="text-sm text-center text-[#D8C3A5] dark:text-slate-200 leading-relaxed select-text">{back}</p>
         </div>
       </div>
     </div>
@@ -544,13 +585,13 @@ const ModuleQuiz = ({ questions, t, moduleId, onQuizSubmit }) => {
   const correctCount = submitted ? quizIndices.filter((qIdx, i) => selected[i] === questions[qIdx].ans).length : 0;
   return (
     <div className="mt-8 bg-slate-50 dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-700">
-      <h3 className="font-serif font-bold text-xl text-[#004030] dark:text-[#D8C3A5] mb-6 flex items-center"><IconBookOpen size={20} className="mr-2"/>{t.quiz_title}</h3>
+      <h3 className="font-serif font-bold text-xl text-[#004030] dark:text-[#D8C3A5] mb-6 flex items-center select-none"><IconBookOpen size={20} className="mr-2"/>{t.quiz_title}</h3>
       {quizIndices.map((qIdx, qi) => {
         const q = questions[qIdx];
         return (
           <div key={qIdx} className="mb-6">
-            <p className="font-semibold text-slate-800 dark:text-slate-200 mb-3">{qi+1}. {q.q}</p>
-            <div className="space-y-2">
+            <p className="font-semibold text-slate-800 dark:text-slate-200 mb-3 select-text">{qi+1}. {q.q}</p>
+            <div className="space-y-2 select-none">
               {q.opts.map((opt, oi) => {
                 let cls = "w-full text-left px-4 py-2.5 rounded-lg border text-sm transition-colors ";
                 if (!submitted) cls += selected[qi]===oi ? "border-[#004030] bg-[#004030]/10 dark:bg-[#D8C3A5]/10 text-[#004030] dark:text-[#D8C3A5] font-semibold" : "border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300";
@@ -560,15 +601,15 @@ const ModuleQuiz = ({ questions, t, moduleId, onQuizSubmit }) => {
                 return <button key={oi} className={cls} onClick={() => !submitted && setSelected({...selected,[qi]:oi})}>{opt}</button>;
               })}
             </div>
-            {submitted && <p className="mt-2 text-xs text-slate-500 dark:text-slate-400 italic">{t.explanation}：{q.exp}</p>}
+            {submitted && <p className="mt-2 text-xs text-slate-500 dark:text-slate-400 italic select-text">{t.explanation}：{q.exp}</p>}
           </div>
         );
       })}
       {!submitted ? (
         <button onClick={handleSubmit} disabled={Object.keys(selected).length < quizIndices.length}
-          className="px-6 py-2.5 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-bold rounded-lg disabled:opacity-40 hover:bg-[#002b20] transition-colors">{t.submit}</button>
+          className="px-6 py-2.5 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-bold rounded-lg disabled:opacity-40 hover:bg-[#002b20] transition-colors select-none">{t.submit}</button>
       ) : (
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 select-none">
           <span className="font-bold text-lg text-[#004030] dark:text-[#D8C3A5]">{t.score}：{correctCount}/{quizIndices.length}</span>
           <button onClick={() => {setSelected({});setSubmitted(false);}} className="px-4 py-2 border border-[#004030] dark:border-[#D8C3A5] text-[#004030] dark:text-[#D8C3A5] rounded-lg hover:bg-[#004030]/10 text-sm font-semibold">{t.retry}</button>
         </div>
@@ -578,7 +619,7 @@ const ModuleQuiz = ({ questions, t, moduleId, onQuizSubmit }) => {
 };
 
 const LinkCard = ({label, url, desc}) => (
-  <a href={url} target="_blank" rel="noopener noreferrer" className="block bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 hover:border-[#004030] dark:hover:border-[#D8C3A5] hover:shadow-md transition-all group">
+  <a href={url} target="_blank" rel="noopener noreferrer" className="block bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 hover:border-[#004030] dark:hover:border-[#D8C3A5] hover:shadow-md transition-all group select-none">
     <div className="flex items-start justify-between gap-2 mb-2">
       <span className="font-bold font-serif text-sm text-[#004030] dark:text-[#D8C3A5] group-hover:underline leading-snug">{label}</span>
       <IconExternalLink size={14} className="shrink-0 text-slate-400 group-hover:text-[#004030] dark:group-hover:text-[#D8C3A5]"/>
@@ -598,7 +639,7 @@ const AssumptionLab = ({lang}) => {
   ]);
   const sorted = [...items].sort((a,b) => (b.imp+b.unc)-(a.imp+a.unc));
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 select-none">
       <h4 className="font-serif font-bold text-lg text-[#004030] dark:text-[#D8C3A5] mb-4">{lang==='zh'?'假設優先序模擬器':'Assumption Priority Simulator'}</h4>
       <p className="text-sm text-slate-500 mb-4">{lang==='zh'?'拖曳滑桿調整重要性與不確定性（1-5），觀察優先序變化':'Adjust importance & uncertainty (1-5) sliders to see priority changes'}</p>
       <div className="space-y-4">
@@ -641,9 +682,8 @@ const SensitivityLab = ({lang}) => {
     {name: lang==='zh'?'原料成本':'Material cost', base:120, lo:100, hi:160},
     {name: lang==='zh'?'每日銷售電話':'Calls/day', base:10, lo:3, hi:20},
   ];
-  const baseProfit = 138000;
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 select-none">
       <h4 className="font-serif font-bold text-lg text-[#004030] dark:text-[#D8C3A5] mb-4">{lang==='zh'?'敏感度分析（龍捲風圖）':'Sensitivity Analysis (Tornado Chart)'}</h4>
       <p className="text-sm text-slate-500 mb-4">{lang==='zh'?'顯示各假設變動對利潤的相對影響幅度':'Shows relative profit impact of each assumption variation'}</p>
       <div className="space-y-3">
@@ -674,7 +714,16 @@ function App() {
   const [isDark, setIsDark] = useState(false);
   const [module, setModule] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [toastMsg, setToastMsg] = useState(null);
   const menuRef = useRef(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [menuOpen]);
+
   const [ttsState, setTtsState] = useState('idle');
   const [studentInfo, setStudentInfo] = useState({group:'',dept:'',id:'',name:''});
   const [analytics, setAnalytics] = useState({
@@ -685,12 +734,51 @@ function App() {
   const timerRef = useRef(null);
   const t = dict[lang];
 
+  const showToast = (msg) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(null), 3000);
+  };
+
+  /* 防禦機制 4: 全域鍵盤與滑鼠防護 */
   useEffect(() => {
-    if (!menuOpen) return;
-    const handler = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false); };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [menuOpen]);
+    const handleContextMenu = (e) => {
+      const selectionText = window.getSelection().toString().trim();
+      const isImage = e.target.tagName.toLowerCase() === 'img' || e.target.closest('svg') !== null;
+      if (selectionText.length > 0 && !isImage) return; 
+      e.preventDefault();
+      showToast(t.copyright_toast);
+    };
+
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        const k = e.key.toLowerCase();
+        if (k === 'p' || k === 's' || k === 'c') return;
+      }
+      const isF12 = e.key === 'F12';
+      const isCtrlU = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'u';
+      const isDevTools = (e.ctrlKey || e.metaKey) && e.shiftKey && ['i', 'j', 'c'].includes(e.key.toLowerCase());
+      if (isF12 || isCtrlU || isDevTools) {
+        e.preventDefault();
+        showToast(t.copyright_toast);
+      }
+    };
+
+    const handleDragStart = (e) => {
+      if (e.target.tagName.toLowerCase() === 'img' || e.target.closest('svg') !== null) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('dragstart', handleDragStart);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('dragstart', handleDragStart);
+    };
+  }, [lang]);
 
   useEffect(() => { isDark ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark'); }, [isDark]);
 
@@ -776,8 +864,19 @@ function App() {
     {id:9,icon:<IconBarChart2 size={16}/>,title:getCleanTitle(t.analytics_title)}
   ];
 
+  /* 版權 Toast UI 元件 */
+  const ToastComponent = () => {
+    if (!toastMsg) return null;
+    return (
+      <div className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-[#004030] dark:bg-[#D8C3A5] text-[#D8C3A5] dark:text-[#004030] px-6 py-3.5 rounded-full shadow-2xl z-[9999] font-serif font-bold text-sm sm:text-base animate-toast border border-[#D8C3A5]/30 dark:border-[#004030]/30 flex items-center gap-3 select-none pointer-events-none">
+        <IconShield size={20} />
+        {toastMsg}
+      </div>
+    );
+  };
+
   const renderNavBottom = () => (
-    <div className="mt-12 flex justify-between items-center pt-8 border-t border-slate-300 dark:border-slate-700">
+    <div className="mt-12 flex justify-between items-center pt-8 border-t border-slate-300 dark:border-slate-700 select-none">
       <button onClick={()=>setModule(Math.max(0,module-1))} disabled={module===0} className="px-6 py-3 font-serif font-bold text-slate-500 hover:text-[#004030] dark:hover:text-[#D8C3A5] disabled:opacity-0 transition-colors flex items-center uppercase text-sm tracking-wider">← {t.nav_prev}</button>
       <button onClick={()=>setModule(Math.min(TOTAL-1,module+1))} disabled={module===TOTAL-1} className="px-8 py-3 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-serif font-bold hover:bg-[#002b20] disabled:opacity-0 transition-colors flex items-center uppercase text-sm tracking-wider shadow-md">{t.nav_next} <IconArrowRight size={16} className="ml-2"/></button>
     </div>
@@ -804,8 +903,8 @@ function App() {
           <h4 className="font-bold font-serif text-lg mb-3 flex items-center"><IconBookOpen size={20} className="mr-2"/>{t[`${mKey}_case_title`]}</h4>
           <p className="text-sm opacity-90 leading-relaxed">{t[`${mKey}_case`]}</p>
         </div>
-        <div className="mt-8"><h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">{t.key_terms}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">{t[`${mKey}_terms`].map((term,i)=><FlipCard key={i} front={term.front} back={term.back} t={t}/>)}</div></div>
+        <div className="mt-8 select-none"><h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">{t.key_terms}</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 select-text">{t[`${mKey}_terms`].map((term,i)=><FlipCard key={i} front={term.front} back={term.back} t={t}/>)}</div></div>
         {/* 在此加上 key={modId} 讓每次切換模組時組件重新掛載，避免狀態殘留 */}
         <ModuleQuiz key={modId} questions={t[`${mKey}_q`]} t={t} moduleId={modId} onQuizSubmit={handleQuizSubmit}/>
         {renderNavBottom()}
@@ -819,7 +918,7 @@ function App() {
     if(module===0) return (
       <div className={`space-y-8 ${base}`}>
         <div className="bg-[#004030] dark:bg-slate-800 rounded-2xl p-8 text-white">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#D8C3A5] mb-3">{lang==='zh'?'課程簡介':'Course Introduction'}</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#D8C3A5] mb-3 select-none">{lang==='zh'?'課程簡介':'Course Introduction'}</p>
           <h2 className="text-3xl md:text-4xl font-serif font-black text-white mb-4">{t.m0_title}</h2>
           <p className="text-[#D8C3A5]/90 text-base leading-relaxed">{t.m0_intro}</p>
         </div>
@@ -827,7 +926,7 @@ function App() {
           <h3 className="text-xl font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-3">{t.m0_why}</h3>
           <p className="text-base">{t.m0_why_desc}</p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 select-none">
           {t.m0_stats.map((s,i)=>(
             <div key={i} className="bg-white dark:bg-slate-800 rounded-xl p-5 text-center shadow-sm border border-slate-200 dark:border-slate-700">
               <div className="text-2xl md:text-3xl font-black font-serif text-[#004030] dark:text-[#D8C3A5] mb-1">{s.val}</div>
@@ -835,7 +934,7 @@ function App() {
             </div>
           ))}
         </div>
-        <div>
+        <div className="select-none">
           <h3 className="text-lg font-bold uppercase tracking-wider text-slate-500 mb-4">{lang==='zh'?'課程模組':'Course Modules'}</h3>
           <div className="space-y-3">
             {t.m0_modules.map((m,i)=>(
@@ -850,7 +949,7 @@ function App() {
             ))}
           </div>
         </div>
-        <div className="flex justify-end">
+        <div className="flex justify-end select-none">
           <button onClick={()=>setModule(1)} className="px-8 py-3 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-serif font-bold rounded-lg shadow-md hover:bg-[#002b20] transition-colors">{t.m0_start}</button>
         </div>
       </div>
@@ -881,11 +980,11 @@ function App() {
           <p className="text-slate-500 dark:text-slate-400">{t.m7_desc}</p>
           {resources.map((sec,si)=>(
             <div key={si}>
-              <h3 className="text-xl font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-4">{sec.cat}</h3>
+              <h3 className="text-xl font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-4 select-none">{sec.cat}</h3>
               <div className="grid md:grid-cols-2 gap-3 mb-6">{sec.items.map((l,i)=><LinkCard key={i} {...l}/>)}</div>
             </div>
           ))}
-          <div className="bg-[#004030]/5 dark:bg-[#D8C3A5]/5 rounded-xl p-5 border border-[#004030]/20 dark:border-[#D8C3A5]/20">
+          <div className="bg-[#004030]/5 dark:bg-[#D8C3A5]/5 rounded-xl p-5 border border-[#004030]/20 dark:border-[#D8C3A5]/20 select-none">
             <p className="text-sm text-slate-600 dark:text-slate-400">⚠️ {lang==='zh'?'以上連結為外部資源，僅供學術參考。連結有效性可能隨時間變化。':'External links for academic reference only. Link availability may change over time.'}</p>
           </div>
           {renderNavBottom()}
@@ -896,7 +995,7 @@ function App() {
     if(module===8) return (
       <div className={base}>
         <h2 className="text-3xl md:text-4xl font-serif font-black text-[#004030] dark:text-[#D8C3A5] border-b-2 border-[#D8C3A5] pb-4">{t.mlab_title}</h2>
-        <p className="text-slate-500 dark:text-slate-400">{t.mlab_desc}</p>
+        <p className="text-slate-500 dark:text-slate-400 select-none">{t.mlab_desc}</p>
         <AssumptionLab lang={lang}/>
         <SensitivityLab lang={lang}/>
         {renderNavBottom()}
@@ -914,8 +1013,8 @@ function App() {
       return (
         <div className={base}>
           <h2 className="text-3xl md:text-4xl font-serif font-black text-[#004030] dark:text-[#D8C3A5] border-b-2 border-[#D8C3A5] pb-4">{t.analytics_title}</h2>
-          <p className="text-slate-500 dark:text-slate-400">{t.analytics_desc}</p>
-          <div className="grid grid-cols-3 gap-4">
+          <p className="text-slate-500 dark:text-slate-400 select-none">{t.analytics_desc}</p>
+          <div className="grid grid-cols-3 gap-4 select-none">
             {[{label:t.analytics_total_time,val:totalTime+t.analytics_sec},{label:t.analytics_total_clicks,val:totalClicks+t.analytics_times},{label:t.analytics_overall_acc,val:overallAcc}].map((s,i)=>(
               <div key={i} className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 text-center shadow-sm">
                 <p className="text-2xl font-black font-serif text-[#004030] dark:text-[#D8C3A5]">{s.val}</p>
@@ -923,7 +1022,7 @@ function App() {
               </div>
             ))}
           </div>
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm select-none">
             <table className="w-full text-sm"><thead><tr className="bg-[#004030] text-[#D8C3A5]">
               <th className="text-left p-3">{t.analytics_module}</th><th className="text-center p-3">{t.analytics_time}</th><th className="text-center p-3">{t.analytics_clicks}</th><th className="text-center p-3">{t.analytics_acc}</th>
             </tr></thead><tbody>
@@ -938,20 +1037,20 @@ function App() {
               })}
             </tbody></table>
           </div>
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
-            <h3 className="font-serif font-bold text-lg text-[#004030] dark:text-[#D8C3A5] mb-4">{t.analytics_form_title}</h3>
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm select-text">
+            <h3 className="font-serif font-bold text-lg text-[#004030] dark:text-[#D8C3A5] mb-4 select-none">{t.analytics_form_title}</h3>
             <div className="grid grid-cols-2 gap-4">
-              <div><label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">{t.analytics_group}</label>
-                <select value={studentInfo.group} onChange={e=>setStudentInfo({...studentInfo,group:e.target.value})} className="w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+              <div><label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 select-none">{t.analytics_group}</label>
+                <select value={studentInfo.group} onChange={e=>setStudentInfo({...studentInfo,group:window.DOMPurify.sanitize(e.target.value)})} className="w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200">
                   <option value="">--</option>{t.group_options.map(g=><option key={g} value={g}>{g}</option>)}</select></div>
-              <div><label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">{t.analytics_dept}</label>
-                <input value={studentInfo.dept} onChange={e=>setStudentInfo({...studentInfo,dept:e.target.value})} placeholder={t.analytics_dept_ph} className="w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"/></div>
-              <div><label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">{t.analytics_id}</label>
-                <input value={studentInfo.id} onChange={e=>setStudentInfo({...studentInfo,id:e.target.value})} placeholder={t.analytics_id_ph} className="w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"/></div>
-              <div><label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">{t.analytics_name}</label>
-                <input value={studentInfo.name} onChange={e=>setStudentInfo({...studentInfo,name:e.target.value})} placeholder={t.analytics_name_ph} className="w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"/></div>
+              <div><label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 select-none">{t.analytics_dept}</label>
+                <input value={studentInfo.dept} onChange={e=>setStudentInfo({...studentInfo,dept:window.DOMPurify.sanitize(e.target.value)})} placeholder={t.analytics_dept_ph} className="w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"/></div>
+              <div><label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 select-none">{t.analytics_id}</label>
+                <input value={studentInfo.id} onChange={e=>setStudentInfo({...studentInfo,id:window.DOMPurify.sanitize(e.target.value)})} placeholder={t.analytics_id_ph} className="w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"/></div>
+              <div><label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 select-none">{t.analytics_name}</label>
+                <input value={studentInfo.name} onChange={e=>setStudentInfo({...studentInfo,name:window.DOMPurify.sanitize(e.target.value)})} placeholder={t.analytics_name_ph} className="w-full border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200"/></div>
             </div>
-            <button onClick={handleExportCSV} disabled={!canExport} className="mt-4 px-6 py-2.5 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-bold rounded-lg disabled:opacity-40 hover:bg-[#002b20] transition-colors text-sm">{canExport?t.analytics_export_csv:t.analytics_fill_required}</button>
+            <button onClick={handleExportCSV} disabled={!canExport} className="mt-4 px-6 py-2.5 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-bold rounded-lg disabled:opacity-40 hover:bg-[#002b20] transition-colors text-sm select-none">{canExport?t.analytics_export_csv:t.analytics_fill_required}</button>
           </div>
           {renderNavBottom()}
         </div>
@@ -961,14 +1060,13 @@ function App() {
 
   return (
     <div className="min-h-screen bg-[#f4f4f4] dark:bg-[#121212] font-sans selection:bg-[#004030] selection:text-white dark:selection:bg-[#D8C3A5] dark:selection:text-[#004030] flex flex-col overflow-x-hidden pt-16">
-      <header className="fixed top-0 left-0 right-0 h-16 bg-[#004030] dark:bg-slate-900 text-white z-50 shadow-lg border-b border-[#D8C3A5]/30">
+      <header className="fixed top-0 left-0 right-0 h-16 bg-[#004030] dark:bg-slate-900 text-white z-50 shadow-lg border-b border-[#D8C3A5]/30 select-none">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="relative" ref={menuRef}>
               <button className="p-2 hover:bg-white/10 rounded-lg" onClick={()=>setMenuOpen(!menuOpen)}>{menuOpen?<IconX size={20}/>:<IconMenu size={20}/>}</button>
               {menuOpen&&(<div className="absolute top-full left-0 mt-1 w-64 max-w-[calc(100vw-2rem)] max-h-[calc(100vh-5rem)] overflow-y-auto bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 z-[100] overflow-x-hidden">
                 <div className="bg-[#004030]/5 dark:bg-[#D8C3A5]/5 px-4 py-2 border-b border-slate-200 dark:border-slate-700"><p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t.nav_modules}</p></div>
-                {/* 漢堡目錄渲染處，強制加上 m.id 確保最左邊有數字 */}
                 {modulesList.map(m=>(<button key={m.id} onClick={()=>{setModule(m.id);setMenuOpen(false);}} className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors text-left ${module===m.id?'bg-[#004030] text-white dark:bg-[#D8C3A5]/20 dark:text-[#D8C3A5] font-bold':'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}><span className={module===m.id?'text-[#D8C3A5]':'opacity-50'}>{m.icon}</span><span className="truncate">{m.id}. {m.title}</span></button>))}
               </div>)}
             </div>
@@ -988,20 +1086,21 @@ function App() {
         </div>
       </header>
       <div className="max-w-7xl mx-auto w-full px-3 sm:px-4 lg:px-6 flex-1 flex flex-col md:flex-row gap-0 py-6">
-        <aside className="hidden md:block w-64 shrink-0 mr-6">
+        <aside className="hidden md:block w-64 shrink-0 mr-6 select-none">
           <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden sticky top-24">
             <div className="bg-[#004030]/5 dark:bg-[#D8C3A5]/5 px-4 py-3 border-b border-slate-200 dark:border-slate-700"><p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t.nav_modules}</p></div>
             <nav className="space-y-0.5 p-2">
-              {/* 側邊欄渲染處，同樣強制加上 m.id */}
               {modulesList.map(m=>(<button key={m.id} onClick={()=>{setModule(m.id);setMenuOpen(false);}} className={`w-full flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left ${module===m.id?'bg-[#004030] dark:bg-[#D8C3A5]/20 text-white dark:text-[#D8C3A5] border border-[#D8C3A5]/30':'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}><span className={`mr-2.5 ${module===m.id?'text-[#D8C3A5]':'opacity-50'}`}>{m.icon}</span><span className="truncate">{m.id}. {m.title}</span>{module===m.id&&<IconChevronRight size={14} className="ml-auto opacity-50 shrink-0"/>}</button>))}
             </nav>
           </div>
         </aside>
         <main ref={contentRef} className="flex-1 min-w-0" onClick={handleClick}>
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 md:p-8">{renderContent()}</div>
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 md:p-8">
+            {renderContent()}
+          </div>
         </main>
       </div>
-      <footer className="bg-[#004030] dark:bg-slate-950 text-slate-300 dark:text-slate-400 border-t border-[#D8C3A5]">
+      <footer className="bg-[#004030] dark:bg-slate-950 text-slate-300 dark:text-slate-400 border-t border-[#D8C3A5] select-none">
         <div className="max-w-7xl mx-auto px-4 h-8 flex justify-between items-center text-[10px] sm:text-xs">
           <div className="flex items-center space-x-2 md:space-x-4">
             <div className="font-serif font-black text-[#D8C3A5] hidden sm:block tracking-widest text-sm">ENT</div>
@@ -1013,6 +1112,8 @@ function App() {
           </div>
         </div>
       </footer>
+      
+      <ToastComponent />
     </div>
   );
 }
